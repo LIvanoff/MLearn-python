@@ -48,11 +48,8 @@ class Apriori(object):
         j = 0
         for transaction, item in zip(self.transactions_list, self.items_list):
             if tmp != transaction:
-                i = np.where(self.transactions_unique == transaction)
+                i = list(self.transactions_unique).index(transaction)
                 tmp = transaction
-            j = np.where(self.items_unique == item)
+            j = list(self.items_unique).index(item)
             normal_matrix[i][j] = 1
-            i = 0
-            j = 0
-            print(str(transaction) + " " + str(item))
         print(normal_matrix)
