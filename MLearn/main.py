@@ -7,4 +7,4 @@ if __name__ == "__main__":
     arc.apriori(excel=True)
 
 end = time.time()
-print(" ", (end - start) * 10 ** 3, "ms")
+print(" \n", (end - start) * 10 ** 3, "ms")
