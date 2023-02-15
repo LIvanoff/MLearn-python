@@ -4,13 +4,13 @@ import numpy as np
 
 
 class Apriori(object):
-    f1 = np.array([])
-    f2 = np.array([])
-    f3 = np.array([])
-    transactions_count: int
-    items_count: int
+    f1: np.ndarray
+    f2: np.ndarray
+    f3: np.ndarray
     transactions: np.ndarray
     unique_items: np.ndarray
+    transactions_count: int
+    items_count: int
 
     def __init__(self, filename: str, min_length: int):
         self.filename = filename
