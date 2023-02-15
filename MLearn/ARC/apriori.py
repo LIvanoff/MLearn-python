@@ -42,6 +42,7 @@ class Apriori(object):
 
         unique_rows = sum(self.normal_matrix[0:])
         print(unique_rows)
+
         for i in range(len(unique_rows)):
             if unique_rows[i] >= self.min_length:
                 self.f1 = np.append(self.f1, self.items_unique[i])
