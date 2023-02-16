@@ -16,7 +16,7 @@ class Apriori(object):
         self.items_list = self.df[self.df.columns[1]]
         self.transactions_unique = self.df[self.df.columns[0]].unique()
         self.items_unique = self.df[self.df.columns[1]].unique()
-        self.f1 = np.array([])
+        self.items_set = []
         self.f2 = np.array([])
         self.f3 = np.array([])
 
@@ -25,10 +25,10 @@ class Apriori(object):
             return json.load(f)
 
     def apriori(self, excel: bool = False):
-        self.search_f1()
+        self.search_set()
         return
 
-    def search_f1(self):
+    def search_set(self):
         tmp = ''
         i: int
         j: int
@@ -45,9 +45,9 @@ class Apriori(object):
 
         for i in range(len(unique_rows)):
             if unique_rows[i] >= self.min_length:
-                self.f1 = np.append(self.f1, self.items_unique[i])
-        print(self.f1)
+                self.items_set[-1].append(self.items_unique[i])
 
+        print(self.items_set)
 
-
-
+    def show_dataframe(self):
+        print(self.df)
