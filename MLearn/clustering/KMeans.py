@@ -5,36 +5,43 @@ class KMeans(object):
     def __init__(self, clusters: int,
                  metric: str = 'euclid_dist',
                  max_iter: int = None,
-                 stop_criteria_bool: bool = True,
-                 criteria_type_str: str = 'MSE'):
+                 stop_criteria: bool = True):
 
         self.X = None
         self.clusters_ = clusters
         self.metric_ = metric
         self.max_iter_ = max_iter
         self.labels = np.array([])
-        self.stop_criteria_bool_ = stop_criteria_bool
-        self.criteria_type_str_ = criteria_type_str
-        self.centroids = np.array([])
+        self.stop_criteria_ = stop_criteria
+        self.centroids_: np.ndarray
 
     def train(self, X):
         self.X = X
-        seeds = np.random.choice(np.arange(len(X)), self.clusters_, replace=False)
+        init_centers = np.random.choice(np.arange(len(X)), self.clusters_, replace=False)
+
+        centroids = np.empty((0, 2))
+        for center in init_centers:
+            centroids = np.vstack([centroids, X[center]])
 
         if self.metric_ == 'euclid_dist':
             metric = self.euclid_dist
         else:
             metric = self.select_metrics()
 
-        for x in X:
-            self.labels = np.append(self.labels, np.argmin(metric(x, seeds)))
+        # changed = True
+        # while changed:
+        #     changed = False
+        for i in range(2):
+            for x in X:
+                self.labels = np.append(self.labels, np.argmin(metric(x, init_centers)))
 
-        for centroid in seeds:
-            indexes = np.where(self.labels == self.labels[centroid])
-            self.centroids = np.append(self.centroids, np.mean(X[indexes], axis=0))
+            print(self.labels)
+            for center in init_centers:
+                indexes = np.where(self.labels == self.labels[center])
+                centroids = np.vstack([centroids, np.mean(X[indexes], axis=0)])
+                centroids = np.delete(centroids, 0, axis=0)
 
-        print(self.labels[seeds])
-        print(self.centroids)
+        print(centroids)
 
         return self.labels
 
