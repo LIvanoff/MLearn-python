@@ -2,18 +2,19 @@ import numpy as np
 
 
 class KMeans(object):
+    centroids_ = None
+    labels = None
+    X = None
+
     def __init__(self, clusters: int,
                  metric: str = 'euclid_dist',
                  max_iter: int = None,
                  stop_criteria: bool = True):
 
-        self.X = None
         self.clusters_ = clusters
         self.metric_ = metric
         self.max_iter_ = max_iter
-        self.labels = np.array([])
         self.stop_criteria_ = stop_criteria
-        self.centroids_: np.ndarray
 
     def train(self, X):
         self.X = X
@@ -28,19 +29,20 @@ class KMeans(object):
         else:
             metric = self.select_metrics()
 
+        self.labels = np.zeros(len(X))
         # changed = True
         # while changed:
         #     changed = False
-        for i in range(2):
-            for x in X:
-                self.labels = np.append(self.labels, np.argmin(metric(x, init_centers)))
+        for j in range(1):
+            for i in range(len(X)):
+                self.labels[i] = np.argmin(metric(X[i], init_centers))
 
-            print(self.labels)
-            for center in init_centers:
-                indexes = np.where(self.labels == self.labels[center])
-                centroids = np.vstack([centroids, np.mean(X[indexes], axis=0)])
-                centroids = np.delete(centroids, 0, axis=0)
+            for i in range(len(init_centers)):
+                indexes = np.where(self.labels == self.labels[init_centers[i]])
+                centroids[i] = np.mean(X[indexes]) # np.vstack([centroids, np.mean(X[indexes], axis=0)])
+                # centroids = np.delete(centroids, 0, axis=0)
 
+        print(init_centers)
         print(centroids)
 
         return self.labels
