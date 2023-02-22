@@ -5,6 +5,7 @@ class KMeans(object):
     centroids_ = None
     labels = None
     X = None
+    loss = None
 
     def __init__(self, clusters: int,
                  metric: str = 'euclid_dist',
@@ -30,22 +31,46 @@ class KMeans(object):
             metric = self.select_metrics()
 
         self.labels = np.zeros(len(X))
-        # changed = True
-        # while changed:
-        #     changed = False
-        for j in range(1):
+        self.loss = [0, 0]
+        # print('self.loss = ' + str(self.loss))
+
+        changed = True
+        while changed:
+            changed = False
             for i in range(len(X)):
                 self.labels[i] = np.argmin(metric(X[i], init_centers))
 
+            print(self.labels)
+            self.wcss(init_centers)
+            delta = abs(self.loss[0] - self.loss[1])
+            # print('self.loss = ' + str(self.loss))
+            # print('delta = ' + str(delta))
+            if delta != 0:
+                changed = True
+
             for i in range(len(init_centers)):
                 indexes = np.where(self.labels == self.labels[init_centers[i]])
-                centroids[i] = np.mean(X[indexes]) # np.vstack([centroids, np.mean(X[indexes], axis=0)])
+                centroids[i] = np.mean(X[indexes])  # np.vstack([centroids, np.mean(X[indexes], axis=0)])
                 # centroids = np.delete(centroids, 0, axis=0)
 
         print(init_centers)
         print(centroids)
+        print(self.labels[init_centers])
 
         return self.labels
+
+    def wcss(self, init_centers):
+        self.loss.pop(0)
+        dist_sum = 0
+        for i in range(self.clusters_):
+            indexes = np.where(self.labels == self.labels[init_centers[i]])
+            print('indexes = ' + str(indexes))
+            for j in range(len(indexes)):
+                print('X[indexes[j]] = ' + str(self.X[indexes]))
+
+                print('self.X[init_centers] = ' + str(self.X[init_centers][i]))
+                dist_sum += np.sqrt(np.sum((self.X[indexes] - self.X[init_centers][i]) ** 2)) # (self.X[indexes[j]] - self.X[init_centers[i]]) ** 2
+        self.loss.append(dist_sum)
 
     def predict(self):
         return self.labels
