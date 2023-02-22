@@ -1,5 +1,4 @@
 import numpy as np
-import math
 
 
 class KMeans(object):
@@ -28,8 +27,12 @@ class KMeans(object):
 
         for x in X:
             self.labels = np.append(self.labels, np.argmin(metric(x, centroids_index)))
-
-        return
+        print(self.labels)
+        for centroid in centroids_index:
+            indexes = np.where(self.labels == self.labels[centroid])
+            print('centroid ' + str(centroid))
+            print('indexes ' + str(indexes))
+        return self.labels
 
     def predict(self):
         return self.labels
@@ -37,13 +40,13 @@ class KMeans(object):
     def euclid_dist(self, x, centroids_index):
         dist = np.array([])
         for y in self.X[centroids_index]:
-            dist = np.append(dist, math.sqrt(((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2)))
+            dist = np.append(dist, np.sqrt(np.sum((x - y) ** 2)))
         return dist
 
     def manhattan_geom(self, x, centroids_index):
         dist = np.array([])
         for y in self.X[centroids_index]:
-            dist = np.append(dist, abs((x[0] - y[0]) + (x[1] - y[1])))
+            dist = np.append(dist, np.abs(np.sum(x - y)))
         return dist
 
     def chebyshev_dist(self):
@@ -52,7 +55,7 @@ class KMeans(object):
     def square_euclid_dist(self, x, centroids_index):
         dist = np.array([])
         for y in self.X[centroids_index]:
-            dist = np.append(dist, (x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2)
+            dist = np.append(dist, np.sum(x - y))
         return dist
 
     def pow_dist(self):
