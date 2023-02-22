@@ -6,23 +6,20 @@ class KMeans(object):
     def __init__(self, clusters: int,
                  metric: str = 'euclid_dist',
                  max_iter: int = None,
-                 stop_criteria: bool = True,
-                 criteria_type: str = 'MSE'):
+                 stop_criteria_bool: bool = True,
+                 criteria_type_str: str = 'MSE'):
 
         self.X = None
         self.clusters_ = clusters
         self.metric_ = metric
         self.max_iter_ = max_iter
         self.labels = np.array([])
-        self.stop_criteria_ = stop_criteria
-        self.criteria_type_ = criteria_type
+        self.stop_criteria_bool_ = stop_criteria_bool
+        self.criteria_type_str_ = criteria_type_str
 
     def train(self, X):
         self.X = X
-        centroids_index = np.arange(self.clusters_)
-        print(centroids_index)
-        centroids_index = np.random.choice(centroids_index, self.clusters_)
-        print(centroids_index)
+        centroids_index = np.random.choice(np.arange(len(X)), self.clusters_, replace=False)
 
         if self.metric_ == 'euclid_dist':
             metric = self.euclid_dist
