@@ -76,7 +76,7 @@ class KMeans(object):
 
     def euclid_dist(self, x, centroids_index):
         dist = np.array([])
-        for y in self.X[centroids_index]: # self.X[centroids.keys()]
+        for y in self.X[centroids_index]: # self.X[centroids.values()]
             dist = np.append(dist, np.sqrt(np.sum((x - y) ** 2)))
         return dist
 
