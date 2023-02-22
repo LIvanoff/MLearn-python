@@ -5,14 +5,17 @@ import math
 class KMeans(object):
     def __init__(self, clusters: int,
                  metric: str = 'euclid_dist',
-                 max_iter: int = 300,
-                 stop_criteria: bool = True):
+                 max_iter: int = None,
+                 stop_criteria: bool = True,
+                 criteria_type: str = 'MSE'):
 
         self.X = None
         self.clusters_ = clusters
         self.metric_ = metric
         self.max_iter_ = max_iter
         self.labels = np.array([])
+        self.stop_criteria_ = stop_criteria
+        self.criteria_type_ = criteria_type
 
     def train(self, X):
         self.X = X
@@ -21,8 +24,10 @@ class KMeans(object):
         centroids_index = np.random.choice(centroids_index, self.clusters_)
         print(centroids_index)
 
-        '''здесь будет switch для выбранной метрики'''
-        metric = self.euclid_dist
+        if self.metric_ == 'euclid_dist':
+            metric = self.euclid_dist
+        else:
+            metric = self.select_metrics()
 
         for x in X:
             self.labels = np.append(self.labels, np.argmin(metric(x, centroids_index)))
@@ -58,3 +63,13 @@ class KMeans(object):
 
     def stop_criteria(self):
         return
+
+    def select_metrics(self):
+        if self.metric_ == 'manhattan_geom':
+            return self.manhattan_geom
+        elif self.metric_ == 'chebyshev_dist':
+            return self.chebyshev_dist
+        elif self.metric_ == 'square_euclid_dist':
+            return self.square_euclid_dist
+        elif self.metric_ == 'pow_dist':
+            return self.pow_dist
