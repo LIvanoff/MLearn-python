@@ -27,11 +27,18 @@ class KMeans(object):
 
         for x in X:
             self.labels = np.append(self.labels, np.argmin(metric(x, centroids_index)))
+
         print(self.labels)
+
         for centroid in centroids_index:
+            print('centroid ' + str(centroid))
             indexes = np.where(self.labels == self.labels[centroid])
+            centroid = np.where(self.labels[centroid] == np.mean(X[indexes], axis=0))
+            print(np.mean(X[indexes], axis=0))
+            print( np.where(self.labels == np.mean(X[indexes], axis=0)))
             print('centroid ' + str(centroid))
             print('indexes ' + str(indexes))
+
         return self.labels
 
     def predict(self):
