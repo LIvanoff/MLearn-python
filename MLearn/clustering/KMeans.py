@@ -21,7 +21,7 @@ class KMeans(object):
         self.X = X
         init_centers = np.random.choice(np.arange(len(X)), self.clusters_, replace=False)
 
-        centroids = np.empty((0, 2))
+        centroids = np.empty((0, 2)) # переделать centroids в словарь
         for center in init_centers:
             centroids = np.vstack([centroids, X[center]])
 
@@ -40,18 +40,17 @@ class KMeans(object):
             for i in range(len(X)):
                 self.labels[i] = np.argmin(metric(X[i], init_centers))
 
-            print(self.labels)
+            # print(self.labels)
             self.wcss(init_centers)
             delta = abs(self.loss[0] - self.loss[1])
-            # print('self.loss = ' + str(self.loss))
-            # print('delta = ' + str(delta))
+            print('self.loss = ' + str(self.loss))
+            print('delta = ' + str(delta))
             if delta != 0:
                 changed = True
 
             for i in range(len(init_centers)):
                 indexes = np.where(self.labels == self.labels[init_centers[i]])
-                centroids[i] = np.mean(X[indexes])  # np.vstack([centroids, np.mean(X[indexes], axis=0)])
-                # centroids = np.delete(centroids, 0, axis=0)
+                centroids[i] = np.mean(X[indexes])
 
         print(init_centers)
         print(centroids)
@@ -63,12 +62,12 @@ class KMeans(object):
         self.loss.pop(0)
         dist_sum = 0
         for i in range(self.clusters_):
-            indexes = np.where(self.labels == self.labels[init_centers[i]])
-            print('indexes = ' + str(indexes))
+            indexes = np.where(self.labels == self.labels[init_centers[i]]) # centroids[i]
+            # print('indexes = ' + str(indexes))
             for j in range(len(indexes)):
-                print('X[indexes[j]] = ' + str(self.X[indexes]))
-
-                print('self.X[init_centers] = ' + str(self.X[init_centers][i]))
+                # print('X[indexes[j]] = ' + str(self.X[indexes]))
+                #
+                # print('self.X[init_centers] = ' + str(self.X[init_centers][i]))
                 dist_sum += np.sqrt(np.sum((self.X[indexes] - self.X[init_centers][i]) ** 2)) # (self.X[indexes[j]] - self.X[init_centers[i]]) ** 2
         self.loss.append(dist_sum)
 
@@ -77,7 +76,7 @@ class KMeans(object):
 
     def euclid_dist(self, x, centroids_index):
         dist = np.array([])
-        for y in self.X[centroids_index]:
+        for y in self.X[centroids_index]: # self.X[centroids.keys()]
             dist = np.append(dist, np.sqrt(np.sum((x - y) ** 2)))
         return dist
 
