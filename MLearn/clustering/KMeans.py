@@ -15,10 +15,11 @@ class KMeans(object):
         self.labels = np.array([])
         self.stop_criteria_bool_ = stop_criteria_bool
         self.criteria_type_str_ = criteria_type_str
+        self.centroids = np.array([])
 
     def train(self, X):
         self.X = X
-        centroids_index = np.random.choice(np.arange(len(X)), self.clusters_, replace=False)
+        seeds = np.random.choice(np.arange(len(X)), self.clusters_, replace=False)
 
         if self.metric_ == 'euclid_dist':
             metric = self.euclid_dist
@@ -26,18 +27,14 @@ class KMeans(object):
             metric = self.select_metrics()
 
         for x in X:
-            self.labels = np.append(self.labels, np.argmin(metric(x, centroids_index)))
+            self.labels = np.append(self.labels, np.argmin(metric(x, seeds)))
 
-        print(self.labels)
-
-        for centroid in centroids_index:
-            print('centroid ' + str(centroid))
+        for centroid in seeds:
             indexes = np.where(self.labels == self.labels[centroid])
-            centroid = np.where(self.labels[centroid] == np.mean(X[indexes], axis=0))
-            print(np.mean(X[indexes], axis=0))
-            print( np.where(self.labels == np.mean(X[indexes], axis=0)))
-            print('centroid ' + str(centroid))
-            print('indexes ' + str(indexes))
+            self.centroids = np.append(self.centroids, np.mean(X[indexes], axis=0))
+
+        print(self.labels[seeds])
+        print(self.centroids)
 
         return self.labels
 
