@@ -11,12 +11,14 @@ class KMeans(object):
     metric_ : Метрика расчёта дистанции
     max_iter_ : Максимальное количество итераций
     centroids_ : Координаты центродов кластеров
-    labels : Метки точек
+    labels : Метки принадлежности точек к классам
+    X : Координаты точек
     '''
 
-    centroids_ = None
-    labels = None
-    X = None
+    clusters_: int
+    centroids_: dict = {}
+    labels = np.ndarray
+    X: np.ndarray
 
     def __init__(self, clusters: int,
                  metric: str = 'euclid_dist',
