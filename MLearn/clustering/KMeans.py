@@ -19,7 +19,7 @@ class KMeans(object):
         self.max_iter_ = max_iter
         self.stop_criteria_ = stop_criteria
 
-    def train(self, X):
+    def fit_predict(self, X):
         self.X = X
         init_centers = np.random.choice(np.arange(len(X)), self.clusters_, replace=False)
 
@@ -40,10 +40,11 @@ class KMeans(object):
         while changed:
             changed = False
             for i in range(len(X)):
-                self.labels[i] = np.argmin(metric(X[i], centroids))
+                self.labels[i] = np.argmin(metric(self.X[i], centroids))
 
             self.wcss(centroids)
             delta = abs(self.loss[0] - self.loss[1])
+
             if delta != 0:
                 changed = True
 
@@ -76,7 +77,7 @@ class KMeans(object):
         for key in centroids.keys():
             indexes = np.where(self.labels == key)
             dist_sum += np.sqrt(
-                np.sum((self.X[indexes] - centroids[key]) ** 2))  # (self.X[indexes[j]] - self.X[init_centers[i]]) ** 2
+                np.sum((self.X[indexes] - centroids[key]) ** 2))
         self.loss.append(dist_sum)
 
     def predict(self):
@@ -84,23 +85,23 @@ class KMeans(object):
 
     def euclid_dist(self, x, centroids):
         dist = np.array([])
-        for key in centroids.keys():  # self.X[centroids.values()]
+        for key in centroids.keys():
             dist = np.append(dist, np.sqrt(np.sum((x - centroids[key]) ** 2)))
         return dist
 
-    def manhattan_geom(self, x, centroids_index):
+    def manhattan_geom(self, x, centroids):
         dist = np.array([])
-        for y in self.X[centroids_index]:
-            dist = np.append(dist, np.abs(np.sum(x - y)))
+        for key in centroids.keys():
+            dist = np.append(dist, np.abs(np.sum(x - centroids[key])))
         return dist
 
     def chebyshev_dist(self):
         return
 
-    def square_euclid_dist(self, x, centroids_index):
+    def square_euclid_dist(self, x, centroids):
         dist = np.array([])
-        for y in self.X[centroids_index]:
-            dist = np.append(dist, np.sum(x - y))
+        for key in centroids.keys():
+            dist = np.append(dist, np.sum(x - centroids[key]))
         return dist
 
     def pow_dist(self):
