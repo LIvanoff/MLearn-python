@@ -9,8 +9,9 @@
 
 ## Алгоритмы:
 * [Априори](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/ARC/apriori.py) (IN PROGRESS)
-* [K-Means](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/clustering/KMeans.py) (IN PROGRESS)
+* [K-Means](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/clustering/KMeans.py)
 * Линейная регрессия (IN PROGRESS)
 * Логистическая регрессия (IN PROGRESS)
+* Байесовский классификатор (IN PROGRESS)
 * Дерево решений (IN PROGRESS)
 * Марковские цепи (IN PROGRESS)
