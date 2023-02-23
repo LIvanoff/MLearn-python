@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import time
 
 
 class KMeans(object):
@@ -21,9 +23,9 @@ class KMeans(object):
         self.X = X
         init_centers = np.random.choice(np.arange(len(X)), self.clusters_, replace=False)
 
-        centroids = np.empty((0, 2)) # переделать centroids в словарь
-        for center in init_centers:
-            centroids = np.vstack([centroids, X[center]])
+        centroids = {}
+        for center, i in zip(init_centers, range(len(init_centers))):
+            centroids[i] = X[center]
 
         if self.metric_ == 'euclid_dist':
             metric = self.euclid_dist
@@ -32,52 +34,58 @@ class KMeans(object):
 
         self.labels = np.zeros(len(X))
         self.loss = [0, 0]
-        # print('self.loss = ' + str(self.loss))
 
+        # plt.ion()
         changed = True
         while changed:
             changed = False
             for i in range(len(X)):
-                self.labels[i] = np.argmin(metric(X[i], init_centers))
+                self.labels[i] = np.argmin(metric(X[i], centroids))
 
-            # print(self.labels)
-            self.wcss(init_centers)
+            self.wcss(centroids)
             delta = abs(self.loss[0] - self.loss[1])
-            print('self.loss = ' + str(self.loss))
-            print('delta = ' + str(delta))
             if delta != 0:
                 changed = True
 
-            for i in range(len(init_centers)):
-                indexes = np.where(self.labels == self.labels[init_centers[i]])
-                centroids[i] = np.mean(X[indexes])
+            for key in centroids.keys():
+                indexes = np.where(self.labels == key)
+                mean = np.mean(X[indexes], axis=0)
+                centroids[key] = mean
 
-        print(init_centers)
-        print(centroids)
-        print(self.labels[init_centers])
+            # self.print_clusters(centroids)
 
+        # plt.ioff()
+        # plt.show()
         return self.labels
 
-    def wcss(self, init_centers):
+    def print_clusters(self, centroids):
+        centroids_values = list(centroids.values())
+        row0 = list([row[0] for row in centroids_values])
+        row1 = list([row[1] for row in centroids_values])
+        print(centroids)
+        plt.clf()
+        plt.scatter(self.X[:, 0], self.X[:, 1], c=self.labels)
+        plt.plot(row0, row1, 'ro')
+        plt.draw()
+        plt.gcf().canvas.flush_events()
+        time.sleep(3)
+
+    def wcss(self, centroids):
         self.loss.pop(0)
         dist_sum = 0
-        for i in range(self.clusters_):
-            indexes = np.where(self.labels == self.labels[init_centers[i]]) # centroids[i]
-            # print('indexes = ' + str(indexes))
-            for j in range(len(indexes)):
-                # print('X[indexes[j]] = ' + str(self.X[indexes]))
-                #
-                # print('self.X[init_centers] = ' + str(self.X[init_centers][i]))
-                dist_sum += np.sqrt(np.sum((self.X[indexes] - self.X[init_centers][i]) ** 2)) # (self.X[indexes[j]] - self.X[init_centers[i]]) ** 2
+        for key in centroids.keys():
+            indexes = np.where(self.labels == key)
+            dist_sum += np.sqrt(
+                np.sum((self.X[indexes] - centroids[key]) ** 2))  # (self.X[indexes[j]] - self.X[init_centers[i]]) ** 2
         self.loss.append(dist_sum)
 
     def predict(self):
         return self.labels
 
-    def euclid_dist(self, x, centroids_index):
+    def euclid_dist(self, x, centroids):
         dist = np.array([])
-        for y in self.X[centroids_index]: # self.X[centroids.values()]
-            dist = np.append(dist, np.sqrt(np.sum((x - y) ** 2)))
+        for key in centroids.keys():  # self.X[centroids.values()]
+            dist = np.append(dist, np.sqrt(np.sum((x - centroids[key]) ** 2)))
         return dist
 
     def manhattan_geom(self, x, centroids_index):
