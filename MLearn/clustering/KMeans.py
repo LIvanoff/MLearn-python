@@ -7,7 +7,6 @@ class KMeans(object):
     centroids_ = None
     labels = None
     X = None
-    loss = None
 
     def __init__(self, clusters: int,
                  metric: str = 'euclid_dist',
@@ -33,7 +32,7 @@ class KMeans(object):
             metric = self.select_metrics()
 
         self.labels = np.zeros(len(X))
-        self.loss = [0, 0]
+        loss = [0, 0]
 
         # plt.ion()
         changed = True
@@ -42,8 +41,9 @@ class KMeans(object):
             for i in range(len(X)):
                 self.labels[i] = np.argmin(metric(self.X[i], centroids))
 
-            self.wcss(centroids)
-            delta = abs(self.loss[0] - self.loss[1])
+            loss.pop(0)
+            loss.append(self.wcss(centroids))
+            delta = abs(loss[0] - loss[1])
 
             if delta != 0:
                 changed = True
@@ -53,7 +53,7 @@ class KMeans(object):
                 mean = np.mean(X[indexes], axis=0)
                 centroids[key] = mean
 
-            # self.print_clusters(centroids)
+        #     self.print_clusters(centroids)
 
         # plt.ioff()
         # plt.show()
@@ -72,13 +72,12 @@ class KMeans(object):
         time.sleep(3)
 
     def wcss(self, centroids):
-        self.loss.pop(0)
         dist_sum = 0
         for key in centroids.keys():
             indexes = np.where(self.labels == key)
             dist_sum += np.sqrt(
                 np.sum((self.X[indexes] - centroids[key]) ** 2))
-        self.loss.append(dist_sum)
+        return dist_sum
 
     def predict(self):
         return self.labels
