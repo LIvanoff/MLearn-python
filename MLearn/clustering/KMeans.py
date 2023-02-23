@@ -4,6 +4,16 @@ import time
 
 
 class KMeans(object):
+    '''
+    Класс метода кластеризации К-средних
+
+    clusters_ : Количество кластеров
+    metric_ : Метрика расчёта дистанции
+    max_iter_ : Максимальное количество итераций
+    centroids_ : Координаты центродов кластеров
+    labels : Метки точек
+    '''
+
     centroids_ = None
     labels = None
     X = None
@@ -57,6 +67,7 @@ class KMeans(object):
 
         # plt.ioff()
         # plt.show()
+        self.centroids_ = centroids
         return self.labels
 
     def print_clusters(self, centroids):
