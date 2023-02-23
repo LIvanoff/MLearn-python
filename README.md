@@ -8,7 +8,7 @@
   </ol>
 
 ## Алгоритмы:
-* [Априори](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/ARC/apriori.py) (IN PROGRESS)
+* [Априори](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/arl/apriori.py) (IN PROGRESS)
 * [K-Means](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/clustering/KMeans.py)
 * [Линейная регрессия](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py) (IN PROGRESS)
 * Логистическая регрессия (IN PROGRESS)
