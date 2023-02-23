@@ -45,7 +45,7 @@ class Apriori(object):
 
         for i in range(len(unique_rows)):
             if unique_rows[i] >= self.min_length:
-                self.items_set[-1].append(self.items_unique[i])
+                self.items_set.append(self.items_unique[i])
 
         print(self.items_set)
 
