@@ -11,7 +11,7 @@
 > * [Априори](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/arl/apriori.py) (IN PROGRESS)
 > * [K-Means](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/clustering/KMeans.py)
 > * kNN (IN PROGRESS)
-> * [Линейная регрессия](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py) (IN PROGRESS)
+> * [Линейная регрессия](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py)
 > * Логистическая регрессия (IN PROGRESS)
 > * Байесовский классификатор (IN PROGRESS)
 > * Дерево решений (IN PROGRESS)
