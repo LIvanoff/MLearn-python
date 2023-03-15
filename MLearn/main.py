@@ -521,10 +521,12 @@ if __name__ == "__main__":
     # axs[1].scatter(X[:, 0], X[:, 1], c=markers)
     # axs[0].scatter(X[:, 0], X[:, 1], marker='o')
     # plt.show()
-
+    X = np.array([1, 2, 3, 4, 5, 6])
+    Y = np.array([0.8, 1.5, 1.7, 2.1, 2.6, 2.3])
     df_train = pd.read_excel('test.xlsx', engine='openpyxl')
-    regression = Linear(learning_rate=0.9, max_iter=3000)
-    regression.fit(X=df_train['square'].to_numpy(), Y=df_train['clusters'].to_numpy())
+    regression = Linear(learning_rate=0.05, max_iter=300)
+    # regression.fit(X=df_train['square'].to_numpy(), Y=df_train['clusters'].to_numpy())
+    regression.fit(X=X, Y=Y)
 
 end = time.time()
 print(" \n", (end - start) * 10 ** 3, "ms")
