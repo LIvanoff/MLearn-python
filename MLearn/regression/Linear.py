@@ -95,8 +95,8 @@ class Linear(object):
         self.EMA2_w = self.EMA2_w / (1 - np.power(self.beta2, self.t))
         self.EMA2_b = self.EMA2_b / (1 - np.power(self.beta2, self.t))
 
-        self.weight_ -= self.learning_rate_ * (self.EMA1_w / np.sqrt(self.EMA2_w) + epsilon)
-        self.bias_ -= self.learning_rate_ * (self.EMA1_b / np.sqrt(self.EMA2_b) + epsilon)
+        self.weight_ -= self.learning_rate_ * self.EMA1_w / ((np.sqrt(self.EMA2_w)) + epsilon)
+        self.bias_ -= self.learning_rate_ * self.EMA1_b / ((np.sqrt(self.EMA2_b)) + epsilon)
         self.t += 1
 
     def plot(self):
@@ -119,8 +119,8 @@ class Linear(object):
         if self.optimizer_name_ == 'SGD':
             return self.SGD()
         elif self.optimizer_name_ == 'Adam':
-            self.beta1 = 0.9
-            self.beta2 = 0.999
+            self.beta1 = 0.9  # 0.2
+            self.beta2 = 0.9  # 0.8
             self.EMA1_w = 0.0
             self.EMA2_w = 0.0
             self.EMA1_b = 0.0
