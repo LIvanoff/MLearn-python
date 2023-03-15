@@ -55,10 +55,6 @@ class Linear(object):
         return
 
     def MSE(self):
-        # total_error = 0.0
-        # for i in range(compani):
-        #     total_error += (sales[i] - (weight * radio[i] + bias)) ** 2
-        # return total_error / companies
         return np.mean(np.power((self.Y_ - np.dot(self.X_, self.weight_) - self.bias_), 2))
 
     def GD(self):
@@ -76,12 +72,21 @@ class Linear(object):
         pass
 
     def Adam(self):
-        pass
+        weight_deriv = 0
+        bias_deriv = 0
+
+        for i in range(self.size_):
+            weight_deriv += -2 * self.X_[i] * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
+            bias_deriv += -2 * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
+
+        self.weight_ -= self.learning_rate_ * weight_deriv
+        self.bias_ -= self.learning_rate_ * bias_deriv
 
     def plot(self):
         plt.clf()
         plt.scatter(self.X_, self.Y_, marker='o', alpha=0.8)
         plt.plot(self.X_, self.pred, 'r')
+        plt.text(1, 2.5, 'y = ' + str(self.weight_) + ' * x + ' + str(self.bias_), fontsize=10, color='0.5')
         plt.draw()
         plt.gcf().canvas.flush_events()
         # time.sleep(0.01)
