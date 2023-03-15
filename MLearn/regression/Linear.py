@@ -10,23 +10,56 @@ class Linear(object):
     Y_: np.ndarray
     X_: np.ndarray
     size_: int
+    loss_history: np.ndarray
+    pred: np.ndarray
 
     def __init__(self,
-                 max_iter: int = None,
+                 max_iter: int = 100,
                  stop_criteria: bool = True,
-                 learning_rate: float = 0.01
+                 learning_rate: float = 0.01,
+                 optimizer_name: str = "GD"
                  ):
         self.weight_ = np.random.normal(loc=0.0, scale=0.1)
         self.bias_ = np.random.normal(loc=0.0, scale=0.1)
         self.max_iter_ = max_iter
         self.stop_criteria_ = stop_criteria
         self.learning_rate_ = learning_rate
+        self.optimizer_name_ = optimizer_name
 
-    def fit(self, X):
+    def fit(self, X, Y):
         self.X_ = X
+        self.Y_ = Y
         self.size_ = len(self.X_)
 
+        if self.optimizer_name_ == 'GD':
+            optimizer = self.GD
+        else:
+            optimizer = self.select_optimizer()
+
+        plt.ion()
+        self.loss_history = np.array([])
+        for i in range(self.max_iter_):
+            self.predict(self.X_)
+            self.plot()
+            optimizer()
+            # Calculate cost for auditing purposes
+            loss = self.MSE()
+            self.loss_history = np.append(self.loss_history, loss)
+            self.plot()
+            # Log Progress
+            if i % 10 == 0:
+                print("iter: " + str(i) + " loss: " + str(loss))
+
+        plt.ioff()
+        plt.show()
         return
+
+    def MSE(self):
+        # total_error = 0.0
+        # for i in range(compani):
+        #     total_error += (sales[i] - (weight * radio[i] + bias)) ** 2
+        # return total_error / companies
+        return np.mean(np.power((self.Y_ - np.dot(self.X_, self.weight_) - self.bias_), 2))
 
     def GD(self):
         weight_deriv = 0
@@ -42,31 +75,27 @@ class Linear(object):
     def SGD(self):
         pass
 
-    def print_clusters(self, centroids):
-        centroids_values = list(centroids.values())
-        row0 = list([row[0] for row in centroids_values])
-        row1 = list([row[1] for row in centroids_values])
-        print(centroids)
+    def Adam(self):
+        pass
+
+    def plot(self):
         plt.clf()
-        # plt.scatter(self.X[:, 0], self.X[:, 1], c=self.labels)
-        plt.plot(row0, row1, 'ro')
+        plt.scatter(self.X_, self.Y_, marker='o', alpha=0.8)
+        plt.plot(self.X_, self.pred, 'r')
         plt.draw()
         plt.gcf().canvas.flush_events()
-        time.sleep(3)
+        # time.sleep(0.01)
 
+    def predict(self, X):
+        self.pred = np.dot(X, self.weight_) + self.bias_
+        return self.pred
 
-    def predict(self):
-        return
 
     def stop_criteria(self):
         return
 
-    # def select_metrics(self):
-    #     if self.metric_ == 'manhattan_geom':
-    #         return self.manhattan_geom
-    #     elif self.metric_ == 'chebyshev_dist':
-    #         return self.chebyshev_dist
-    #     elif self.metric_ == 'square_euclid_dist':
-    #         return self.square_euclid_dist
-    #     elif self.metric_ == 'pow_dist':
-    #         return self.pow_dist
+    def select_optimizer(self):
+        if self.optimizer_name_ == 'SGD':
+            return self.SGD()
+        elif self.optimizer_name_ == 'Adam':
+            return self.Adam()
