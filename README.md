@@ -8,13 +8,33 @@
   </ol>
 
 ## Алгоритмы:
-> * [Априори](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/arl/apriori.py) (IN PROGRESS)
-> * [K-Means](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/clustering/KMeans.py)
-> * kNN (IN PROGRESS)
-> * [Линейная регрессия](https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py)
-> * Логистическая регрессия (IN PROGRESS)
-> * Байесовский классификатор (IN PROGRESS)
-> * Дерево решений (IN PROGRESS)
-> * Марковские цепи (IN PROGRESS)
-> * Дополнительно
->> * [Генетический алгоритм](https://github.com/LIvanoff/genetic-algorithm)
+<ol>
+  <li>
+    <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/arl/apriori.py">Априори (IN PROGRESS)</a>
+  </li>
+  <li>
+    <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py">Линейная регрессия</a>
+    <ul>
+      <li>
+        <a href="#Функции-оптимизации">Функции оптимизации</a>
+        <ul>
+          <li><a href="#Adam">Adam</a></li>
+          <li><a href="#Gradient-descent">Gradient descent</a></li>
+          <li><a href="#RMSprop">RMSprop</a></li>
+         </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/clustering/KMeans.py">K-Means</a></li>
+  <li><a href="#Логистическая-регрессия">Логистическая регрессия (IN PROGRESS)</a></li>
+  <li><a href="#DBSCAN">DBSCAN (IN PROGRESS)</a></li>
+  <li><a href="#Байесовский-классификатор">Байесовский классификатор (IN PROGRESS)</a></li>
+  <li><a href="#Дерево-решений">Дерево решений (IN PROGRESS)</a></li>
+  <li>
+  <a href="#Дополнительно">Дополнительно</a>
+    <ul>
+      <li><a href="#Генетический-алгоритм">Генетический алгоритм</a></li>
+    </ul>
+  </li>
+</ol>
+
