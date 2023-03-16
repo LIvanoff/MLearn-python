@@ -16,11 +16,11 @@
     <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py">Линейная регрессия</a>
     <ul>
       <li>
-        <a href="#Функции-оптимизации">Функции оптимизации</a>
+        <a>Функции оптимизации</a>
         <ul>
-          <li><a href="#Adam">Adam</a></li>
-          <li><a href="#Gradient-descent">Gradient descent</a></li>
-          <li><a href="#RMSprop">RMSprop</a></li>
+          <li>Adam</li>
+          <li>Gradient descent</li>
+          <li>RMSprop</li>
          </ul>
       </li>
     </ul>
