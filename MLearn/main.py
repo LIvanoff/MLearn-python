@@ -523,10 +523,14 @@ if __name__ == "__main__":
     # plt.show()
     X = np.array([1, 1.2, 1.6, 1.78, 2, 2.3, 2.4, 3, 3.3, 4, 4.1, 4.12, 4.34, 5, 5.3, 5.6, 6])
     Y = np.array([0.8, 1, 0.9, 1.0, 1.2, 1.1, 1.6, 1.7, 2.0, 2.1, 2.15, 2.22, 2.45, 2.6, 2.12, 2.45, 2.3])
+
     df_train = pd.read_excel('test.xlsx', engine='openpyxl')
-    regression = Linear(learning_rate=10, max_iter=1500, optimizer_name='Adam')
+
+    regression = Linear(learning_rate=100, max_iter=2000, optimizer_name='RMSprop', beta1=0.999)
     regression.fit(X=df_train['square'].to_numpy(), Y=df_train['clusters'].to_numpy())
+
     # regression.fit(X=X, Y=Y)
+
     print('y = ' + str(regression.weight_) + ' * x + ' + str(regression.bias_))
     print(regression.predict(7))
 
