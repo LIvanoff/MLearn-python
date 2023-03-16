@@ -19,6 +19,7 @@ class Linear(object):
     EMA2_w: float
     EMA2_b: float
     t: int
+    r2_score: float
 
     def __init__(self,
                  max_iter: int = 100,
@@ -28,8 +29,8 @@ class Linear(object):
                  beta1: float = 0.9,
                  beta2: float = 0.999
                  ):
-        self.weight_ = np.random.normal(loc=0.0, scale=0.01)
-        self.bias_ = np.random.normal(loc=0.0, scale=0.01)
+        self.weight_ = 0.5  # np.random.normal(loc=0.0, scale=0.01)
+        self.bias_ = 0.5  # np.random.normal(loc=0.0, scale=0.01)
         self.max_iter_ = max_iter
         self.stop_criteria_ = stop_criteria
         self.learning_rate_ = learning_rate
@@ -104,15 +105,10 @@ class Linear(object):
             weight_deriv += -2 * self.X_[i] * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
             bias_deriv += -2 * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
 
-        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * weight_deriv
-        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * bias_deriv
-        self.EMA2_w = self.beta2_ * self.EMA2_w + (1 - self.beta2_) * np.power(weight_deriv, 2)
-        self.EMA2_b = self.beta2_ * self.EMA2_b + (1 - self.beta2_) * np.power(bias_deriv, 2)
-
-        self.EMA1_w = self.EMA1_w / (1 - np.power(self.beta1_, self.t))
-        self.EMA1_b = self.EMA1_b / (1 - np.power(self.beta1_, self.t))
-        self.EMA2_w = self.EMA2_w / (1 - np.power(self.beta2_, self.t))
-        self.EMA2_b = self.EMA2_b / (1 - np.power(self.beta2_, self.t))
+        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * weight_deriv / (1 - np.power(self.beta1_, self.t))
+        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * bias_deriv / (1 - np.power(self.beta1_, self.t))
+        self.EMA2_w = self.beta2_ * self.EMA2_w + (1 - self.beta2_) * np.power(weight_deriv, 2) / (1 - np.power(self.beta2_, self.t))
+        self.EMA2_b = self.beta2_ * self.EMA2_b + (1 - self.beta2_) * np.power(bias_deriv, 2) / (1 - np.power(self.beta2_, self.t))
 
         self.weight_ -= self.learning_rate_ * self.EMA1_w / (np.sqrt(self.EMA2_w) + epsilon)
         self.bias_ -= self.learning_rate_ * self.EMA1_b / (np.sqrt(self.EMA2_b) + epsilon)
@@ -122,7 +118,7 @@ class Linear(object):
         plt.clf()
         plt.scatter(self.X_, self.Y_, marker='o', alpha=0.8)
         plt.plot(self.X_, self.pred, 'r')
-        plt.title('y = ' + str(self.weight_) + ' x + ' + str(self.bias_), fontsize=10, color='0.5')
+        plt.title('y = ' + str(self.weight_) + ' x + ' + str(self.bias_) + ' + ' + str(self.loss_history[-1]), fontsize=10, color='0.5')
         plt.draw()
         plt.gcf().canvas.flush_events()
         time.sleep(0.01)
