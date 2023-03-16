@@ -12,8 +12,8 @@ class Linear(object):
     size_: int
     loss_history: np.ndarray
     pred: np.ndarray
-    beta1: float
-    beta2: float
+    beta1_: float
+    beta2_: float
     EMA1_w: float
     EMA1_b: float
     EMA2_w: float
@@ -24,7 +24,9 @@ class Linear(object):
                  max_iter: int = 100,
                  stop_criteria: bool = True,
                  learning_rate: float = 1 * pow(10, -3),
-                 optimizer_name: str = "GD"
+                 optimizer_name: str = "GD",
+                 beta1: float = 0.9,
+                 beta2: float = 0.999
                  ):
         self.weight_ = np.random.normal(loc=0.0, scale=0.01)
         self.bias_ = np.random.normal(loc=0.0, scale=0.01)
@@ -32,6 +34,8 @@ class Linear(object):
         self.stop_criteria_ = stop_criteria
         self.learning_rate_ = learning_rate
         self.optimizer_name_ = optimizer_name
+        self.beta1_ = beta1
+        self.beta2_ = beta2
 
     def fit(self, X, Y):
         self.X_ = X
@@ -76,6 +80,21 @@ class Linear(object):
     def SGD(self):
         pass
 
+    def RMSprop(self):
+        weight_deriv = 0
+        bias_deriv = 0
+        epsilon = pow(10, -8)
+
+        for i in range(self.size_):
+            weight_deriv += -2 * self.X_[i] * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
+            bias_deriv += -2 * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
+
+        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * np.power(weight_deriv, 2)
+        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * np.power(bias_deriv, 2)
+
+        self.weight_ -= self.learning_rate_ * weight_deriv / np.sqrt(self.EMA1_w + epsilon)
+        self.bias_ -= self.learning_rate_ * bias_deriv / np.sqrt(self.EMA1_b + epsilon)
+
     def Adam(self):
         weight_deriv = 0
         bias_deriv = 0
@@ -85,18 +104,18 @@ class Linear(object):
             weight_deriv += -2 * self.X_[i] * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
             bias_deriv += -2 * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
 
-        self.EMA1_w = self.beta1 * self.EMA1_w + (1 - self.beta1) * weight_deriv
-        self.EMA1_b = self.beta1 * self.EMA1_b + (1 - self.beta1) * bias_deriv
-        self.EMA2_w = self.beta2 * self.EMA2_w + (1 - self.beta2) * np.power(weight_deriv, 2)
-        self.EMA2_b = self.beta2 * self.EMA2_b + (1 - self.beta2) * np.power(bias_deriv, 2)
+        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * weight_deriv
+        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * bias_deriv
+        self.EMA2_w = self.beta2_ * self.EMA2_w + (1 - self.beta2_) * np.power(weight_deriv, 2)
+        self.EMA2_b = self.beta2_ * self.EMA2_b + (1 - self.beta2_) * np.power(bias_deriv, 2)
 
-        self.EMA1_w = self.EMA1_w / (1 - np.power(self.beta1, self.t))
-        self.EMA1_b = self.EMA1_b / (1 - np.power(self.beta1, self.t))
-        self.EMA2_w = self.EMA2_w / (1 - np.power(self.beta2, self.t))
-        self.EMA2_b = self.EMA2_b / (1 - np.power(self.beta2, self.t))
+        self.EMA1_w = self.EMA1_w / (1 - np.power(self.beta1_, self.t))
+        self.EMA1_b = self.EMA1_b / (1 - np.power(self.beta1_, self.t))
+        self.EMA2_w = self.EMA2_w / (1 - np.power(self.beta2_, self.t))
+        self.EMA2_b = self.EMA2_b / (1 - np.power(self.beta2_, self.t))
 
-        self.weight_ -= self.learning_rate_ * self.EMA1_w / ((np.sqrt(self.EMA2_w)) + epsilon)
-        self.bias_ -= self.learning_rate_ * self.EMA1_b / ((np.sqrt(self.EMA2_b)) + epsilon)
+        self.weight_ -= self.learning_rate_ * self.EMA1_w / (np.sqrt(self.EMA2_w) + epsilon)
+        self.bias_ -= self.learning_rate_ * self.EMA1_b / (np.sqrt(self.EMA2_b) + epsilon)
         self.t += 1
 
     def plot(self):
@@ -117,13 +136,15 @@ class Linear(object):
 
     def select_optimizer(self):
         if self.optimizer_name_ == 'SGD':
-            return self.SGD()
+            return self.SGD
         elif self.optimizer_name_ == 'Adam':
-            self.beta1 = 0.9  # 0.2
-            self.beta2 = 0.9  # 0.8
             self.EMA1_w = 0.0
             self.EMA2_w = 0.0
             self.EMA1_b = 0.0
             self.EMA2_b = 0.0
             self.t = 1
             return self.Adam
+        elif self.optimizer_name_ == 'RMSprop':
+            self.EMA1_w = 0.0
+            self.EMA1_b = 0.0
+            return self.RMSprop
