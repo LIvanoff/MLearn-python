@@ -13,7 +13,7 @@
     <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/arl/apriori.py">Априори (IN PROGRESS)</a>
   </li>
   <li>
-    <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py">Линейная регрессия</a>
+    <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py">Линейная регрессия (IN PROGRESS)</a>
     <ul>
       <li>
         <a>Функции оптимизации</a>
