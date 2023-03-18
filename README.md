@@ -33,7 +33,7 @@
   <li>
   <a href="#Дополнительно">Дополнительно</a>
     <ul>
-      <li><a href="#Генетический-алгоритм">Генетический алгоритм</a></li>
+      <li><a href="https://github.com/LIvanoff/genetic-algorithm">Генетический алгоритм</a></li>
     </ul>
   </li>
 </ol>
