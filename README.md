@@ -16,7 +16,7 @@
     <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py">Линейная регрессия (IN PROGRESS)</a>
     <ul>
       <li>
-        <a>Функции оптимизации</a>
+        <a>Оптимизаторы</a>
         <ul>
           <li>Adam</li>
           <li>Gradient descent</li>
