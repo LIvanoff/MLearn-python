@@ -25,11 +25,13 @@ class Linear(object):
     weight_: float
     bias_: float
     gradient: av.Variable
+    batch_size_: int
 
     def __init__(self,
+                 batch_size: int,
                  max_iter: int = 100,
-                 stop_criteria: bool = True,
-                 learning_rate: float = 1 * pow(10, -3),
+                 stop_criteria: bool = False,
+                 learning_rate: float = pow(10, -3),
                  optimizer_name: str = 'GD',
                  loss_function: str = 'MSE',
                  beta1: float = 0.9,
@@ -44,6 +46,7 @@ class Linear(object):
         self.loss_function_ = loss_function
         self.beta1_ = beta1
         self.beta2_ = beta2
+        self.batch_size_ = batch_size
 
     def fit(self, X, Y):
         self.X_ = X
@@ -51,9 +54,9 @@ class Linear(object):
         self.size_ = len(self.X_)
 
         if self.optimizer_name_ == 'GD':
-            step = self.GD
+            optimize = self.GD
         else:
-            step = self.select_optimizer()
+            optimize = self.select_optimizer()
 
         if self.loss_function_ == 'MSE':
             loss_function = self.MSE
@@ -65,38 +68,45 @@ class Linear(object):
         self.loss_history = np.array([])
 
         for epoch in range(self.max_iter_):
-            big_variable = av.Variable([self.weight_, self.bias_])
-            weight, bias = big_variable[0], big_variable[1]
-            self.forward(weight, bias)
-            loss = loss_function()
-            self.gradient = loss.compute_gradients()
-            step()
-            self.loss_history = np.append(self.loss_history, loss.data)
-            self.plot()
-            ad.reset_graph()
+            order = np.random.permutation(len(self.X_))
 
-            if epoch % 10 == 0:
-                print("iter: " + str(epoch) + " loss: " + str(loss.data))
+            for start_index in range(0, len(self.X_), self.batch_size_):
+                big_variable = av.Variable([self.weight_, self.bias_])
+                weight, bias = big_variable[0], big_variable[1]
+
+                batch_indexes = order[start_index:start_index + self.batch_size_]
+
+                X_batch = self.X_[batch_indexes]
+                y_batch = self.Y_[batch_indexes]
+
+                self.forward(weight, bias, X_batch)
+
+                loss_value = loss_function(y_batch)
+                self.gradient = loss_value.compute_gradients()
+                optimize()
+                self.loss_history = np.append(self.loss_history, loss_value.data)
+                self.plot()
+                ad.reset_graph()
+
+                if epoch % 10 == 0:
+                    print("iter: " + str(epoch) + " loss: " + str(loss_value.data))
 
         plt.ioff()
         plt.show()
         return self
 
-    def MSE(self):
-        return np.mean(np.power((self.Y_ - self.pred), 2))
+    def MSE(self, Y):
+        return np.mean(np.power((Y - self.pred), 2))
 
-    def RMSE(self):
-        return np.sqrt(np.mean(np.power((self.Y_ - self.pred), 2)))
+    def RMSE(self, Y):
+        return np.sqrt(np.mean(np.power((Y - self.pred), 2)))
 
-    def MAE(self):
-        return np.mean(np.abs(self.Y_ - self.pred))
-
-    def GD(self):
-        self.weight_ -= self.learning_rate_ * self.gradient[0][0]
-        self.bias_ -= self.learning_rate_ * self.gradient[0][1]
+    def MAE(self, Y):
+        return np.mean(np.abs(Y - self.pred))
 
     def SGD(self):
-        pass
+        self.weight_ -= self.learning_rate_ * self.gradient[0][0]
+        self.bias_ -= self.learning_rate_ * self.gradient[0][1]
 
     def RMSprop(self):
         epsilon = pow(10, -8)
@@ -133,8 +143,8 @@ class Linear(object):
         self.pred = np.dot(X, self.weight_) + self.bias_
         return self.pred
 
-    def forward(self, weight, bias):
-        self.pred = np.dot(self.X_, weight) + bias
+    def forward(self, weight, bias, X):
+        self.pred = np.dot(X, weight) + bias
         return self.pred
 
     def stop_criteria(self):
