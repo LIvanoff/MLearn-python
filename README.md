@@ -13,7 +13,7 @@
     <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/arl/apriori.py">Априори (IN PROGRESS)</a>
   </li>
   <li>
-    <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py">Линейная регрессия (IN PROGRESS)</a>
+    <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py">Линейная регрессия</a>
     <ul>
       <li>
         <a>Оптимизаторы</a>
@@ -31,7 +31,7 @@
   <li><a href="#Байесовский-классификатор">Байесовский классификатор (IN PROGRESS)</a></li>
   <li><a href="#Дерево-решений">Дерево решений (IN PROGRESS)</a></li>
   <li>
-  <a href="#Дополнительно">Дополнительно</a>
+  <a>Дополнительно</a>
     <ul>
       <li><a href="https://github.com/LIvanoff/genetic-algorithm">Генетический алгоритм</a></li>
     </ul>
