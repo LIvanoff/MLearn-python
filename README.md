@@ -13,10 +13,10 @@
     <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/arl/apriori.py">Априори (IN PROGRESS)</a>
   </li>
   <li>
-    <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py">Линейная регрессия</a>
+    <a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/regression/Linear.py">Линейная регрессия (IN PROGRESS)</a>
     <ul>
       <li>
-        <a>Функции оптимизации</a>
+        <a>Оптимизаторы</a>
         <ul>
           <li>Adam</li>
           <li>Gradient descent</li>
@@ -33,7 +33,7 @@
   <li>
   <a href="#Дополнительно">Дополнительно</a>
     <ul>
-      <li><a href="#Генетический-алгоритм">Генетический алгоритм</a></li>
+      <li><a href="https://github.com/LIvanoff/genetic-algorithm">Генетический алгоритм</a></li>
     </ul>
   </li>
 </ol>
