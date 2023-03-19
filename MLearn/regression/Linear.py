@@ -22,6 +22,9 @@ class Linear(object):
     EMA2_b: float
     t: int
     r2_score: float
+    weight_: float
+    bias_: float
+    gradient: av.Variable
 
     def __init__(self,
                  max_iter: int = 100,
@@ -48,30 +51,32 @@ class Linear(object):
         self.size_ = len(self.X_)
 
         if self.optimizer_name_ == 'GD':
-            optimize = self.GD
+            step = self.GD
         else:
-            optimize = self.select_optimizer()
+            step = self.select_optimizer()
 
         if self.loss_function_ == 'MSE':
             loss_function = self.MSE
         else:
             loss_function = self.select_loss_function()
 
+        ad.set_mode('reverse')
         plt.ion()
         self.loss_history = np.array([])
+
         for epoch in range(self.max_iter_):
             big_variable = av.Variable([self.weight_, self.bias_])
             weight, bias = big_variable[0], big_variable[1]
             self.forward(weight, bias)
             loss = loss_function()
-            print('loss = ' + str(loss))
-            optimize(loss)
+            self.gradient = loss.compute_gradients()
+            step()
             self.loss_history = np.append(self.loss_history, loss.data)
-            self.predict(self.X_)
             self.plot()
+            ad.reset_graph()
 
             if epoch % 10 == 0:
-                print("iter: " + str(epoch) + " loss: " + str(loss))
+                print("iter: " + str(epoch) + " loss: " + str(loss.data))
 
         plt.ioff()
         plt.show()
@@ -83,28 +88,21 @@ class Linear(object):
     def MAE(self):
         return np.mean(np.abs(self.Y_ - self.pred))
 
-    def GD(self, loss):
-        loss.compute_gradients()
-        self.weight_ -= self.learning_rate_ * loss.gradient[0][0]
-        self.bias_ -= self.learning_rate_ * loss.gradient[0][1]
+    def GD(self):
+        self.weight_ -= self.learning_rate_ * self.gradient[0][0]
+        self.bias_ -= self.learning_rate_ * self.gradient[0][1]
 
     def SGD(self):
         pass
 
     def RMSprop(self):
-        weight_deriv = 0
-        bias_deriv = 0
         epsilon = pow(10, -8)
 
-        for i in range(self.size_):
-            weight_deriv += -2 * self.X_[i] * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
-            bias_deriv += -2 * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
+        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * np.power(self.gradient[0][0], 2)
+        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * np.power(self.gradient[0][1], 2)
 
-        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * np.power(weight_deriv, 2)
-        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * np.power(bias_deriv, 2)
-
-        self.weight_ -= self.learning_rate_ * weight_deriv / np.sqrt(self.EMA1_w + epsilon)
-        self.bias_ -= self.learning_rate_ * bias_deriv / np.sqrt(self.EMA1_b + epsilon)
+        self.weight_ -= self.learning_rate_ * self.gradient[0][0] / np.sqrt(self.EMA1_w + epsilon)
+        self.bias_ -= self.learning_rate_ * self.gradient[0][1] / np.sqrt(self.EMA1_b + epsilon)
 
     def Adam(self):
         weight_deriv = 0
@@ -125,6 +123,7 @@ class Linear(object):
         self.t += 1
 
     def plot(self):
+        self.predict(self.X_)
         plt.clf()
         plt.scatter(self.X_, self.Y_, marker='o', alpha=0.8)
         plt.plot(self.X_, self.pred, 'r')
