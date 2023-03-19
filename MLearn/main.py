@@ -525,13 +525,13 @@ if __name__ == "__main__":
 
     # X = df_train['square'].to_numpy()
     # Y = df_train['clusters'].to_numpy()
-    # X = np.array([1, 1.2, 1.6, 1.78, 2, 2.3, 2.4, 3, 3.3, 4, 4.1, 4.12, 4.34, 5, 5.3, 5.6, 6])
-    # Y = np.array([0.8, 1, 0.9, 1.0, 1.2, 1.1, 1.6, 1.7, 2.0, 2.1, 2.15, 2.22, 2.45, 2.6, 2.12, 2.45, 2.3])
-    X = np.array([1, 3])
-    Y = np.array([2, 3])
+    X = np.array([1, 1.2, 1.6, 1.78, 2, 2.3, 2.4, 3, 3.3, 4, 4.1, 4.12, 4.34, 5, 5.3, 5.6, 6])
+    Y = np.array([0.8, 1, 0.9, 1.0, 1.2, 1.1, 1.6, 1.7, 2.0, 2.1, 2.15, 2.22, 2.45, 2.6, 2.12, 2.45, 2.3])
 
-    regression = Linear(learning_rate=0.1, max_iter=100, optimizer_name='GD') # learning_rate=0.05, max_iter=100, optimizer_name='Adam'
-    # regression.fit(X=df_train['square'].to_numpy(), Y=df_train['clusters'].to_numpy())
+    regression = Linear(learning_rate=0.1,
+                        max_iter=100,
+                        optimizer_name='SGD',
+                        batch_size=14)
 
     regression.fit(X=X, Y=Y)
     x_loss = np.arange(len(regression.loss_history))
