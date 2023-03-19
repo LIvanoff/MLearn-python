@@ -53,8 +53,8 @@ class Linear(object):
         self.Y_ = Y
         self.size_ = len(self.X_)
 
-        if self.optimizer_name_ == 'GD':
-            optimize = self.GD
+        if self.optimizer_name_ == 'SGD':
+            optimize = self.SGD
         else:
             optimize = self.select_optimizer()
 
@@ -151,9 +151,7 @@ class Linear(object):
         return
 
     def select_optimizer(self):
-        if self.optimizer_name_ == 'SGD':
-            return self.SGD
-        elif self.optimizer_name_ == 'Adam':
+        if self.optimizer_name_ == 'Adam':
             self.EMA1_w = 0.0
             self.EMA2_w = 0.0
             self.EMA1_b = 0.0
