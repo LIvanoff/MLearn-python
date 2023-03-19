@@ -85,6 +85,9 @@ class Linear(object):
     def MSE(self):
         return np.mean(np.power((self.Y_ - self.pred), 2))
 
+    def RMSE(self):
+        return np.sqrt(np.mean(np.power((self.Y_ - self.pred), 2)))
+
     def MAE(self):
         return np.mean(np.abs(self.Y_ - self.pred))
 
@@ -105,18 +108,12 @@ class Linear(object):
         self.bias_ -= self.learning_rate_ * self.gradient[0][1] / np.sqrt(self.EMA1_b + epsilon)
 
     def Adam(self):
-        weight_deriv = 0
-        bias_deriv = 0
         epsilon = pow(10, -8)
 
-        for i in range(self.size_):
-            weight_deriv += -2 * self.X_[i] * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
-            bias_deriv += -2 * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
-
-        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * weight_deriv / (1 - np.power(self.beta1_, self.t))
-        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * bias_deriv / (1 - np.power(self.beta1_, self.t))
-        self.EMA2_w = self.beta2_ * self.EMA2_w + (1 - self.beta2_) * np.power(weight_deriv, 2) / (1 - np.power(self.beta2_, self.t))
-        self.EMA2_b = self.beta2_ * self.EMA2_b + (1 - self.beta2_) * np.power(bias_deriv, 2) / (1 - np.power(self.beta2_, self.t))
+        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * self.gradient[0][0] / (1 - np.power(self.beta1_, self.t))
+        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * self.gradient[0][1] / (1 - np.power(self.beta1_, self.t))
+        self.EMA2_w = self.beta2_ * self.EMA2_w + (1 - self.beta2_) * np.power(self.gradient[0][0], 2) / (1 - np.power(self.beta2_, self.t))
+        self.EMA2_b = self.beta2_ * self.EMA2_b + (1 - self.beta2_) * np.power(self.gradient[0][1], 2) / (1 - np.power(self.beta2_, self.t))
 
         self.weight_ -= self.learning_rate_ * self.EMA1_w / (np.sqrt(self.EMA2_w) + epsilon)
         self.bias_ -= self.learning_rate_ * self.EMA1_b / (np.sqrt(self.EMA2_b) + epsilon)
