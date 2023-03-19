@@ -166,3 +166,5 @@ class Linear(object):
     def select_loss_function(self):
         if self.loss_function_ == 'MAE':
             return self.MAE
+        elif self.loss_function_ == 'RMSE':
+            return self.RMSE
