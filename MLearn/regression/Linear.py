@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import autograd as ad
+import autograd.variable as av
 import time
 
 
@@ -25,16 +27,18 @@ class Linear(object):
                  max_iter: int = 100,
                  stop_criteria: bool = True,
                  learning_rate: float = 1 * pow(10, -3),
-                 optimizer_name: str = "GD",
+                 optimizer_name: str = 'GD',
+                 loss_function: str = 'MSE',
                  beta1: float = 0.9,
                  beta2: float = 0.999
                  ):
-        self.weight_ = 0.5  # np.random.normal(loc=0.0, scale=0.01)
-        self.bias_ = 0.5  # np.random.normal(loc=0.0, scale=0.01)
+        self.weight_ = np.random.normal(loc=0.0, scale=0.01)
+        self.bias_ = np.random.normal(loc=0.0, scale=0.01)
         self.max_iter_ = max_iter
         self.stop_criteria_ = stop_criteria
         self.learning_rate_ = learning_rate
         self.optimizer_name_ = optimizer_name
+        self.loss_function_ = loss_function
         self.beta1_ = beta1
         self.beta2_ = beta2
 
@@ -44,39 +48,45 @@ class Linear(object):
         self.size_ = len(self.X_)
 
         if self.optimizer_name_ == 'GD':
-            optimizer = self.GD
+            optimize = self.GD
         else:
-            optimizer = self.select_optimizer()
+            optimize = self.select_optimizer()
+
+        if self.loss_function_ == 'MSE':
+            loss_function = self.MSE
+        else:
+            loss_function = self.select_loss_function()
 
         plt.ion()
         self.loss_history = np.array([])
-        for i in range(self.max_iter_):
+        for epoch in range(self.max_iter_):
+            big_variable = av.Variable([self.weight_, self.bias_])
+            weight, bias = big_variable[0], big_variable[1]
+            self.forward(weight, bias)
+            loss = loss_function()
+            print('loss = ' + str(loss))
+            optimize(loss)
+            self.loss_history = np.append(self.loss_history, loss.data)
             self.predict(self.X_)
-            optimizer()
-            loss = self.MSE()
-            self.loss_history = np.append(self.loss_history, loss)
             self.plot()
 
-            if i % 10 == 0:
-                print("iter: " + str(i) + " loss: " + str(loss))
+            if epoch % 10 == 0:
+                print("iter: " + str(epoch) + " loss: " + str(loss))
 
         plt.ioff()
         plt.show()
         return self
 
     def MSE(self):
-        return np.mean(np.power((self.Y_ - np.dot(self.X_, self.weight_) - self.bias_), 2))
+        return np.mean(np.power((self.Y_ - self.pred), 2))
 
-    def GD(self):
-        weight_deriv = 0
-        bias_deriv = 0
+    def MAE(self):
+        return np.mean(np.abs(self.Y_ - self.pred))
 
-        for i in range(self.size_):
-            weight_deriv += -2 * self.X_[i] * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
-            bias_deriv += -2 * (self.Y_[i] - (self.weight_ * self.X_[i] + self.bias_)) / self.size_
-
-        self.weight_ -= self.learning_rate_ * weight_deriv
-        self.bias_ -= self.learning_rate_ * bias_deriv
+    def GD(self, loss):
+        loss.compute_gradients()
+        self.weight_ -= self.learning_rate_ * loss.gradient[0][0]
+        self.bias_ -= self.learning_rate_ * loss.gradient[0][1]
 
     def SGD(self):
         pass
@@ -127,6 +137,10 @@ class Linear(object):
         self.pred = np.dot(X, self.weight_) + self.bias_
         return self.pred
 
+    def forward(self, weight, bias):
+        self.pred = np.dot(self.X_, weight) + bias
+        return self.pred
+
     def stop_criteria(self):
         return
 
@@ -144,3 +158,7 @@ class Linear(object):
             self.EMA1_w = 0.0
             self.EMA1_b = 0.0
             return self.RMSprop
+
+    def select_loss_function(self):
+        if self.loss_function_ == 'MAE':
+            return self.MAE
