@@ -19,7 +19,7 @@
         <a>Оптимизаторы</a>
         <ul>
           <li>Adam</li>
-          <li>Gradient descent</li>
+          <li>SGD</li>
           <li>RMSprop</li>
          </ul>
       </li>
