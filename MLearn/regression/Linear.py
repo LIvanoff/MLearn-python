@@ -28,11 +28,11 @@ class Linear(object):
     batch_size_: int
 
     def __init__(self,
-                 batch_size: int,
+                 batch_size: int = None,
                  max_iter: int = 100,
                  stop_criteria: bool = False,
                  learning_rate: float = pow(10, -3),
-                 optimizer_name: str = 'GD',
+                 optimizer_name: str = 'SGD',
                  loss_function: str = 'MSE',
                  beta1: float = 0.9,
                  beta2: float = 0.999
@@ -63,6 +63,9 @@ class Linear(object):
         else:
             loss_function = self.select_loss_function()
 
+        if self.batch_size_ is None:
+            self.batch_size_ = self.size_
+
         ad.set_mode('reverse')
         plt.ion()
         self.loss_history = np.array([])
@@ -89,7 +92,7 @@ class Linear(object):
                 ad.reset_graph()
 
                 if epoch % 10 == 0:
-                    print("iter: " + str(epoch) + " loss: " + str(loss_value.data))
+                    print("iter: " + str(epoch) + " loss: " + str(float(loss_value.data)))
 
         plt.ioff()
         plt.show()
