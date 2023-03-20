@@ -42,4 +42,3 @@
 </ol>
 
 ## Линейная регрессия
-<a href="https://latex.codecogs.com/svg.image ?MSE&space;=&space;\frac{1}{N}&space;\sum_{i=0}^{N}&space;(y&space;-&space;(x&space;w_{i}&space;&plus;&space;b_{i})) ^ 2"></a>
