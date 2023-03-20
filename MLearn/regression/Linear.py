@@ -22,20 +22,22 @@ class Linear(object):
     EMA2_b: float
     t: int
     r2_score: float
+    r1_score: float
     weight_: float
     bias_: float
     gradient: av.Variable
     batch_size_: int
+    color: str
 
     def __init__(self,
-                 batch_size: int = None,
                  max_iter: int = 100,
                  stop_criteria: bool = False,
                  learning_rate: float = pow(10, -3),
                  optimizer_name: str = 'SGD',
                  loss_function: str = 'MSE',
                  beta1: float = 0.9,
-                 beta2: float = 0.999
+                 beta2: float = 0.999,
+                 batch_size: int = None,
                  ):
         self.weight_ = np.random.normal(loc=0.0, scale=0.01)
         self.bias_ = np.random.normal(loc=0.0, scale=0.01)
@@ -55,6 +57,7 @@ class Linear(object):
 
         if self.optimizer_name_ == 'SGD':
             optimize = self.SGD
+            self.color = 'r'
         else:
             optimize = self.select_optimizer()
 
@@ -136,11 +139,12 @@ class Linear(object):
         self.predict(self.X_)
         plt.clf()
         plt.scatter(self.X_, self.Y_, marker='o', alpha=0.8)
-        plt.plot(self.X_, self.pred, 'r')
+        plt.plot(self.X_, self.pred, color=self.color, label=str(self.optimizer_name_))
         plt.title('y = ' + str(self.weight_) + ' x + ' + str(self.bias_) + ' + ' + str(self.loss_history[-1]), fontsize=10, color='0.5')
+        plt.legend()
         plt.draw()
         plt.gcf().canvas.flush_events()
-        time.sleep(0.01)
+        time.sleep(0.0001)
 
     def predict(self, X):
         self.pred = np.dot(X, self.weight_) + self.bias_
@@ -160,10 +164,12 @@ class Linear(object):
             self.EMA1_b = 0.0
             self.EMA2_b = 0.0
             self.t = 1
+            self.color = 'b'
             return self.Adam
         elif self.optimizer_name_ == 'RMSprop':
             self.EMA1_w = 0.0
             self.EMA1_b = 0.0
+            self.color = 'g'
             return self.RMSprop
 
     def select_loss_function(self):
@@ -171,3 +177,11 @@ class Linear(object):
             return self.MAE
         elif self.loss_function_ == 'RMSE':
             return self.RMSE
+
+    def r2_score(self):
+        self.r2_score = 1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(np.power((self.Y_ - np.mean(self.Y_)), 2))
+        return self.r2_score
+
+    def r1_score(self):
+        self.r1_score = np.sqrt(1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(np.power((self.Y_ - np.mean(self.Y_)), 2)))
+        return self.r1_score
