@@ -4,6 +4,28 @@ import autograd as ad
 import autograd.variable as av
 import time
 
+'''
+    Пример использования:
+    import matplotlib.pyplot as plt
+    from regression.Linear import Linear
+    
+    X = np.array([1, 1.2, 1.6, 1.78, 2, 2.3, 2.4, 3, 3.3, 4, 4.1, 4.12, 4.34, 5, 5.3, 5.6, 6])
+    Y = np.array([0.8, 1, 0.9, 1.0, 1.2, 1.1, 1.6, 1.7, 2.0, 2.1, 2.15, 2.22, 2.45, 2.6, 2.12, 2.45, 2.3])
+
+    regression = Linear(learning_rate=0.01,
+                        max_iter=100,
+                        optimizer_name='RMSprop',
+                        batch_size=13)
+
+    regression.fit(X=X, Y=Y)
+    fig1, axe = plt.subplots(1, 2, figsize=(15, 6))
+    axe[0].scatter(X, Y, marker='o', alpha=0.8)
+    axe[0].plot(X, regression.pred, 'r')
+    axe[1].plot(x_loss1, regression.loss_history)
+    plt.show()
+    print(regression.r1_score())
+    print(regression.r2_score())
+'''
 
 class Linear(object):
     '''
