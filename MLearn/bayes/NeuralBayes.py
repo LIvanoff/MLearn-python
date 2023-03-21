@@ -20,7 +20,7 @@ class Neuron(torch.nn.Module):
         return self.forward(x)
 
 
-train = pd.read_excel('bayes_test.xlsx')
+train = pd.read_excel('../bayes_test.xlsx')
 data = train.values
 y = torch.Tensor(data[:, 3:4])
 x_train = torch.Tensor(data[:, :3])
@@ -29,11 +29,11 @@ model.train()
 optimizer = torch.optim.Adam(model.parameters(),
                              lr=1.0e-4)
 
-for epoch in range(2000):
+for epoch in range(1300):
     for i in range(0, len(x_train)):
         pred = model.forward(x_train)
         loss = F.binary_cross_entropy(pred, y)
-        print(loss)
+        print('epoch: ' + str(epoch) + ' loss: ' + str(float(loss)))
         loss.backward()
         optimizer.step()
     if epoch % 100 == 0:
@@ -43,4 +43,4 @@ for epoch in range(2000):
 
 model.eval()
 y_test = torch.Tensor([1., 1., 1.])
-model.predict(y_test)
+print(model.predict(y_test))
