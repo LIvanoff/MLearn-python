@@ -34,8 +34,11 @@ class Bayes(object):
         for key, j in zip(self.class_probability.keys(), range(self.class_num_)):
             self.class_probability[key] *= class_frequency[j] / len(self.Y_)
 
+        self.normalize()
+
+        return self.class_probability
+
+    def normalize(self):
         probability_sum = sum(self.class_probability.values())
         for key in self.class_probability.keys():
             self.class_probability[key] = self.class_probability[key] / probability_sum
-
-        return self.class_probability
