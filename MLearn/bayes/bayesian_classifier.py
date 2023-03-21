@@ -1,5 +1,16 @@
 import numpy as np
 
+'''
+    Пример использования:
+    test = pd.read_excel('../bayes_test_decode.xlsx', engine='openpyxl')
+    data = test.values
+    y = data[:, 3:4]
+    x = data[:, :3]
+    bayes = Bayes(2)
+    condition_array = np.array(['нет', 'да', 'нет'])
+    print(bayes.predict(X=x, Y=y, condition_array=condition_array))
+'''
+
 
 class Bayes(object):
     '''
