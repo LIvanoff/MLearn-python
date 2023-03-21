@@ -26,9 +26,9 @@ class Bayes(object):
 
         for i in range(len(condition_array)):
             for key, j in zip(self.class_probability.keys(), range(self.class_num_)):
-                apriori_x = np.where(self.X_[:, i] == condition_array[i])[0]
-                apriori_y = np.where(self.Y_ == key)[0]
-                condition_frequency = np.count_nonzero(np.in1d(apriori_x, apriori_y) == True)
+                Px = np.where(self.X_[:, i] == condition_array[i])[0]
+                Py = np.where(self.Y_ == key)[0]
+                condition_frequency = np.count_nonzero(np.in1d(Px, Py) == True)
                 self.class_probability[key] *= condition_frequency / class_frequency[j]
 
         for key, j in zip(self.class_probability.keys(), range(self.class_num_)):
