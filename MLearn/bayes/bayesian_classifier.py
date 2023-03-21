@@ -2,6 +2,8 @@ import numpy as np
 
 '''
     Пример использования:
+    from bayes.bayesian_classifier import Bayes
+    
     test = pd.read_excel('../bayes_test_decode.xlsx', engine='openpyxl')
     data = test.values
     y = data[:, 3:4]
