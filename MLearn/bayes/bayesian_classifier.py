@@ -7,17 +7,21 @@ class Bayes(object):
     '''
     Y_: np.ndarray
     X_: np.ndarray
-    parameters_num_: int
     class_num_: int
     condition_array_: np.ndarray
+    class_probability: {}
 
-    def __init__(self, parameters_num: int, class_num):
-        self.parameters_num_ = parameters_num
+    def __init__(self, class_num: int):
         self.class_num_ = class_num
 
     def fit(self, X, Y, condition_array):
         self.X_ = X
         self.Y_ = Y
         self.condition_array_ = condition_array
+
+        for i in range(len(condition_array)):
+
+            for j in range(self.class_num_):
+                pass
 
 
