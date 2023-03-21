@@ -27,6 +27,7 @@ import time
     print(regression.r2_score())
 '''
 
+
 class Linear(object):
     '''
     Класс метода численной линейной регрессии
@@ -160,10 +161,14 @@ class Linear(object):
     def Adam(self):
         epsilon = pow(10, -8)
 
-        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * self.gradient[0][0] / (1 - np.power(self.beta1_, self.t))
-        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * self.gradient[0][1] / (1 - np.power(self.beta1_, self.t))
-        self.EMA2_w = self.beta2_ * self.EMA2_w + (1 - self.beta2_) * np.power(self.gradient[0][0], 2) / (1 - np.power(self.beta2_, self.t))
-        self.EMA2_b = self.beta2_ * self.EMA2_b + (1 - self.beta2_) * np.power(self.gradient[0][1], 2) / (1 - np.power(self.beta2_, self.t))
+        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * self.gradient[0][0] / (
+                    1 - np.power(self.beta1_, self.t))
+        self.EMA1_b = self.beta1_ * self.EMA1_b + (1 - self.beta1_) * self.gradient[0][1] / (
+                    1 - np.power(self.beta1_, self.t))
+        self.EMA2_w = self.beta2_ * self.EMA2_w + (1 - self.beta2_) * np.power(self.gradient[0][0], 2) / (
+                    1 - np.power(self.beta2_, self.t))
+        self.EMA2_b = self.beta2_ * self.EMA2_b + (1 - self.beta2_) * np.power(self.gradient[0][1], 2) / (
+                    1 - np.power(self.beta2_, self.t))
 
         self.weight_ -= self.learning_rate_ * self.EMA1_w / (np.sqrt(self.EMA2_w) + epsilon)
         self.bias_ -= self.learning_rate_ * self.EMA1_b / (np.sqrt(self.EMA2_b) + epsilon)
@@ -174,7 +179,8 @@ class Linear(object):
         plt.clf()
         plt.scatter(self.X_, self.Y_, marker='o', alpha=0.8)
         plt.plot(self.X_, self.pred, color=self.color, label=str(self.optimizer_name_))
-        plt.title('y = ' + str(self.weight_) + ' x + ' + str(self.bias_) + ' + ' + str(self.loss_history[-1]), fontsize=10, color='0.5')
+        plt.title('y = ' + str(self.weight_) + ' x + ' + str(self.bias_) + ' + ' + str(self.loss_history[-1]),
+                  fontsize=10, color='0.5')
         plt.legend()
         plt.draw()
         plt.gcf().canvas.flush_events()
@@ -213,9 +219,11 @@ class Linear(object):
             return self.RMSE
 
     def r2_score(self):
-        self.r2_score = 1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(np.power((self.Y_ - np.mean(self.Y_)), 2))
+        self.r2_score = 1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(
+            np.power((self.Y_ - np.mean(self.Y_)), 2))
         return self.r2_score
 
     def r1_score(self):
-        self.r1_score = np.sqrt(1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(np.power((self.Y_ - np.mean(self.Y_)), 2)))
+        self.r1_score = np.sqrt(
+            1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(np.power((self.Y_ - np.mean(self.Y_)), 2)))
         return self.r1_score
