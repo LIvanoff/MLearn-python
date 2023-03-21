@@ -7,17 +7,17 @@ class KMeans(object):
     '''
     Класс метода кластеризации К-средних
 
-    clusters_ : Количество кластеров
-    metric_ : Метрика расчёта расстояния между точкой и центроидом
-    max_iter_ : Максимальное количество итераций
-    centroids_ : Координаты центродов кластеров
-    labels : Метки принадлежности точек к классам
-    X : Координаты точек
+    clusters_  : Количество кластеров\n
+    metric_    : Метрика\n
+    max_iter_  : Максимальное количество итераций\n
+    centroids_ : Координаты центродов кластеров\n
+    labels     : Метки принадлежности точек к классам\n
+    X          : Координаты точек\n
     '''
 
     clusters_: int
     centroids_: dict = {}
-    labels: np.ndarray
+    labels = np.ndarray
     X: np.ndarray
 
     def __init__(self, clusters: int,
@@ -46,7 +46,7 @@ class KMeans(object):
         self.labels = np.zeros(len(X))
         loss = [0, 0]
 
-        plt.ion()
+        # plt.ion()
         changed = True
         while changed:
             changed = False
@@ -65,14 +65,14 @@ class KMeans(object):
                 mean = np.mean(X[indexes], axis=0)
                 centroids[key] = mean
 
-            self.plot(centroids)
+        #     self.print_clusters(centroids)
 
-        plt.ioff()
-        plt.show()
+        # plt.ioff()
+        # plt.show()
         self.centroids_ = centroids
         return self.labels
 
-    def plot(self, centroids):
+    def print_clusters(self, centroids):
         centroids_values = list(centroids.values())
         row0 = list([row[0] for row in centroids_values])
         row1 = list([row[1] for row in centroids_values])
