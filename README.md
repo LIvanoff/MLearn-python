@@ -31,7 +31,7 @@
   <li><a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/clustering/KMeans.py">K-Means</a></li>
   <li><a href="#Логистическая-регрессия">Логистическая регрессия (IN PROGRESS)</a></li>
   <li><a href="#DBSCAN">DBSCAN (IN PROGRESS)</a></li>
-  <li><a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/bayes/bayesian_classifier.py">Байесовский классификатор (IN PROGRESS)</a></li>
+  <li><a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/bayes/bayesian_classifier.py">Байесовский классификатор</a></li>
   <li><a href="#Дерево-решений">Дерево решений (IN PROGRESS)</a></li>
   <li>
   <a>Дополнительно</a>
