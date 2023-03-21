@@ -5,7 +5,7 @@ import torch
 import torch.nn.functional as F
 
 
-class Neuron(torch.nn.Module):
+class NeuronBayes(torch.nn.Module):
     def __init__(self):
         super().__init__()
         self.fc1 = torch.nn.Linear(3, 1)
@@ -24,7 +24,7 @@ train = pd.read_excel('../bayes_test.xlsx')
 data = train.values
 y = torch.Tensor(data[:, 3:4])
 x_train = torch.Tensor(data[:, :3])
-model = Neuron()
+model = NeuronBayes()
 model.train()
 optimizer = torch.optim.Adam(model.parameters(),
                              lr=1.0e-4)
@@ -42,5 +42,5 @@ for epoch in range(1300):
         print((test_preds == y).float().mean())
 
 model.eval()
-y_test = torch.Tensor([1., 1., 1.])
+y_test = torch.Tensor([1., 1., 0.])
 print(model.predict(y_test))
