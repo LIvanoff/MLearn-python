@@ -7,18 +7,18 @@ import time
     from clustering.KMeans import KMeans
     import matplotlib.pyplot as pl
 
-    # X1 = np.random.normal(loc=[0, -10], size=(100, 2))
-    # X2 = np.random.normal(loc=[-10, 0], size=(100, 2))
-    # X3 = np.random.normal(loc=[0, 0], size=(100, 2))
-    # X = np.vstack((X1, X2, X3))
+    X1 = np.random.normal(loc=[0, -10], size=(100, 2))
+    X2 = np.random.normal(loc=[-10, 0], size=(100, 2))
+    X3 = np.random.normal(loc=[0, 0], size=(100, 2))
+    X = np.vstack((X1, X2, X3))
 
-    # km = KMeans(10)
-    # markers = km.fit_predict(X_old)
+    km = KMeans(10)
+    markers = km.fit_predict(X_old)
 
-    # fig, axs = plt.subplots(1, 2, figsize=(10, 4))
-    # axs[1].scatter(X[:, 0], X[:, 1], c=markers)
-    # axs[0].scatter(X[:, 0], X[:, 1], marker='o')
-    # plt.show()
+    fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+    axs[1].scatter(X[:, 0], X[:, 1], c=markers)
+    axs[0].scatter(X[:, 0], X[:, 1], marker='o')
+    plt.show()
 '''
 
 
