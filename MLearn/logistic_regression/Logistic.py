@@ -55,7 +55,7 @@ class Logistic(object):
 
     def cross_entropy(self, pred, y):
         pred = np.clip(pred, 1e-10, 1 - 1e-10)
-        return y * np.log(pred)
+        return -y * np.log(pred)
 
     def predict(self, X, threshold=0.5):
         return self.predict_proba(X) >= threshold
@@ -64,6 +64,12 @@ class Logistic(object):
         n, k = X.shape
         X_ = np.concatenate((np.ones((n, 1)), X), axis=1)
         return self.sigmoid(self.logit(X_, self.weight))
+
+    def gradient_softmax(self, X, pred, y):
+        return np.mean(np.dot(X.T, (y - pred))) / len(y)
+
+    def gradient_sigmoid(self, X, pred, y):
+        return np.dot(X.T, (pred - y)) / len(y)
 
     def fit(self, X, Y):
         self.Y_ = Y
@@ -81,9 +87,11 @@ class Logistic(object):
         if num_class > 2:
             activ = self.softmax
             loss_func = self.cross_entropy
+            gradient = self.gradient_softmax
         else:
             activ = self.sigmoid
             loss_func = self.BCE
+            gradient = self.gradient_sigmoid
 
         for epoch in range(self.max_iter_):
             order = np.random.permutation(len(self.X_))
@@ -97,7 +105,7 @@ class Logistic(object):
 
                 pred = activ(self.logit(X_batch, self.weight))
                 loss = loss_func(pred, y_batch)
-                grad = np.dot(X_batch.T, (pred - y_batch)) / len(y_batch)
+                grad = gradient(X_batch, pred, y_batch)
 
                 self.weight -= grad * self.learning_rate_
                 if epoch % 1000 == 0:
