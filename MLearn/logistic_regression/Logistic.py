@@ -4,10 +4,6 @@ import autograd as ad
 import autograd.variable as av
 
 
-def cross_entropy(pred, y):
-    pred = np.clip(pred, 1e-10, 1 - 1e-10)
-    return y * np.log(pred)
-
 
 class Logistic(object):
     '''
@@ -38,11 +34,12 @@ class Logistic(object):
     EMA1_b: float
     EMA2_w: float
     EMA2_b: float
+    gradient: av.Variable
     t: int
 
     def __init__(self, max_iter=300,
                  learning_rate: float = pow(10, -3),
-                 optimizer_name: str ='SGD',
+                 optimizer_name: str = 'SGD',
                  beta1: float = 0.9,
                  beta2: float = 0.999,
                  batch_size: int = None,
@@ -53,19 +50,21 @@ class Logistic(object):
         self.beta1_ = beta1
         self.beta2_ = beta2
         self.batch_size_ = batch_size
-        self.weight = np.random.normal(loc=0.0, scale=0.01)
 
     def logit(self, X, weight):
-        return np.dot(X, weight)
+        logits = np.dot(X, weight)
+        return logits
 
     def sigmoid(self, logits):
+        print(logits)
         return 1. / (1 + np.exp(-logits))
 
     def softmax(self, logits):
         return np.exp(logits) / np.mean(np.exp(logits))
 
-    def cross_entropy(self):
-
+    def cross_entropy(self, pred, y):
+        pred = np.clip(pred, 1e-10, 1 - 1e-10)
+        return y * np.log(pred)
 
     def BCE(self, pred, y):
         pred = np.clip(pred, 1e-10, 1 - 1e-10)
@@ -81,12 +80,15 @@ class Logistic(object):
         epsilon = pow(10, -8)
 
         self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * self.gradient[0][0] / (
-                    1 - np.power(self.beta1_, self.t))
+                1 - np.power(self.beta1_, self.t))
         self.EMA2_w = self.beta2_ * self.EMA2_w + (1 - self.beta2_) * np.power(self.gradient[0][0], 2) / (
-                    1 - np.power(self.beta2_, self.t))
+                1 - np.power(self.beta2_, self.t))
 
         self.weight -= self.learning_rate_ * self.EMA1_w / (np.sqrt(self.EMA2_w) + epsilon)
         self.t += 1
+
+    def SGD(self):
+        self.weight -= self.learning_rate_ * self.gradient[0][0]
 
     def select_optimizer(self):
         if self.optimizer_name_ == 'Adam':
@@ -106,6 +108,7 @@ class Logistic(object):
         self.Y_ = Y
         self.size_ = len(self.X_)
         self.loss_history = np.array([])
+        self.weight = np.random.normal(loc=0.0, scale=0.01, size=len(self.Y_))
 
         if self.optimizer_name_ == 'SGD':
             optimize = self.SGD
@@ -114,6 +117,14 @@ class Logistic(object):
 
         if self.batch_size_ is None:
             self.batch_size_ = self.size_
+
+        num_class = len(np.unique(self.Y_))
+        if num_class > 2:
+            activ = self.softmax
+            loss_func = self.cross_entropy
+        else:
+            activ = self.sigmoid
+            loss_func = self.BCE
 
         ad.set_mode('reverse')
 
@@ -129,8 +140,10 @@ class Logistic(object):
                 X_batch = self.X_[batch_indexes]
                 y_batch = self.Y_[batch_indexes]
 
-                pred = self.sigmoid(self.logit(X_batch, weight))
-                loss = self.__loss(pred=pred, y=y_batch)
+                logits = self.logit(X_batch, weight)
+                pred = activ(logits)
+                loss = loss_func(pred=pred, y=y_batch)
+
                 # grad = np.dot(X_batch.T, (pred - y_batch)) / len(y_batch)
                 self.gradient = loss.compute_gradients()
                 optimize()
@@ -139,4 +152,18 @@ class Logistic(object):
                 if epoch % 10 == 0:
                     print("iter: " + str(epoch) + " loss: " + str(float(loss.data)))
 
-                self.loss_history = np.append(self.loss(pred))
+                self.loss_history = np.append(loss_func(pred))
+
+
+from sklearn.datasets import make_blobs
+X, y = make_blobs(n_samples=10, centers=[[-2,0.5],[2,-0.5]], cluster_std=1, random_state=42)
+
+colors = ("red", "green")
+colored_y = np.zeros(y.size, dtype=str)
+
+for i, cl in enumerate([0, 1]):
+    colored_y[y == cl] = str(colors[i])
+
+clf = Logistic()
+
+clf.fit(X, y)
