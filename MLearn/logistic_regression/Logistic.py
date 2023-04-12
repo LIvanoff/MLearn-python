@@ -1,8 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import autograd as ad
-import autograd.variable as av
-
+from sklearn.datasets import make_blobs
+from matplotlib.colors import ListedColormap
 
 
 class Logistic(object):
@@ -24,18 +23,8 @@ class Logistic(object):
     loss_history: np.ndarray
     pred: np.ndarray
     weight: float
-    gradient: av.Variable
     batch_size_: int
     max_iter_: int
-    optimizer_name_: str
-    beta1_: float
-    beta2_: float
-    EMA1_w: float
-    EMA1_b: float
-    EMA2_w: float
-    EMA2_b: float
-    gradient: av.Variable
-    t: int
 
     def __init__(self, max_iter=300,
                  learning_rate: float = pow(10, -3),
@@ -52,118 +41,84 @@ class Logistic(object):
         self.batch_size_ = batch_size
 
     def logit(self, X, weight):
-        logits = np.dot(X, weight)
-        return logits
+        return np.dot(X, weight)
 
     def sigmoid(self, logits):
-        print(logits)
         return 1. / (1 + np.exp(-logits))
-
-    def softmax(self, logits):
-        return np.exp(logits) / np.mean(np.exp(logits))
-
-    def cross_entropy(self, pred, y):
-        pred = np.clip(pred, 1e-10, 1 - 1e-10)
-        return y * np.log(pred)
 
     def BCE(self, pred, y):
         pred = np.clip(pred, 1e-10, 1 - 1e-10)
-        return np.mean(y * np.log(pred) + (1 - y) * np.log(1 - pred))
+        return np.mean(-(y * np.log(pred) + (1 - y) * np.log(1 - pred)))
 
-    def RMSprop(self):
-        epsilon = pow(10, -8)
+    def predict(self, X, threshold=0.5):
+        return self.predict_proba(X) >= threshold
 
-        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * np.power(self.gradient[0][0], 2)
-        self.weight -= self.learning_rate_ * self.gradient[0][0] / np.sqrt(self.EMA1_w + epsilon)
-
-    def Adam(self):
-        epsilon = pow(10, -8)
-
-        self.EMA1_w = self.beta1_ * self.EMA1_w + (1 - self.beta1_) * self.gradient[0][0] / (
-                1 - np.power(self.beta1_, self.t))
-        self.EMA2_w = self.beta2_ * self.EMA2_w + (1 - self.beta2_) * np.power(self.gradient[0][0], 2) / (
-                1 - np.power(self.beta2_, self.t))
-
-        self.weight -= self.learning_rate_ * self.EMA1_w / (np.sqrt(self.EMA2_w) + epsilon)
-        self.t += 1
-
-    def SGD(self):
-        self.weight -= self.learning_rate_ * self.gradient[0][0]
-
-    def select_optimizer(self):
-        if self.optimizer_name_ == 'Adam':
-            self.EMA1_w = 0.0
-            self.EMA2_w = 0.0
-            self.EMA1_b = 0.0
-            self.EMA2_b = 0.0
-            self.t = 1
-            return self.Adam
-        elif self.optimizer_name_ == 'RMSprop':
-            self.EMA1_w = 0.0
-            self.EMA1_b = 0.0
-            return self.RMSprop
+    def predict_proba(self, X):
+        n, k = X.shape
+        X_ = np.concatenate((np.ones((n, 1)), X), axis=1)
+        return self.sigmoid(self.logit(X_, self.weight))
 
     def fit(self, X, Y):
-        self.X_ = X
         self.Y_ = Y
-        self.size_ = len(self.X_)
         self.loss_history = np.array([])
-        self.weight = np.random.normal(loc=0.0, scale=0.01, size=len(self.Y_))
 
-        if self.optimizer_name_ == 'SGD':
-            optimize = self.SGD
-        else:
-            optimize = self.select_optimizer()
+        n, k = X.shape
+        self.X_ = np.concatenate((np.ones((n, 1)), X), axis=1)
+        self.size_ = len(self.X_)
+        self.weight = np.random.normal(loc=0.0, scale=0.01, size=k + 1)
 
         if self.batch_size_ is None:
             self.batch_size_ = self.size_
 
-        num_class = len(np.unique(self.Y_))
-        if num_class > 2:
-            activ = self.softmax
-            loss_func = self.cross_entropy
-        else:
-            activ = self.sigmoid
-            loss_func = self.BCE
-
-        ad.set_mode('reverse')
+        activ = self.sigmoid
+        loss_func = self.BCE
 
         for epoch in range(self.max_iter_):
             order = np.random.permutation(len(self.X_))
 
             for start_index in range(0, len(self.X_), self.batch_size_):
-                big_variable = av.Variable([self.weight])
-                weight = big_variable[0]
 
                 batch_indexes = order[start_index:start_index + self.batch_size_]
 
                 X_batch = self.X_[batch_indexes]
                 y_batch = self.Y_[batch_indexes]
 
-                logits = self.logit(X_batch, weight)
-                pred = activ(logits)
-                loss = loss_func(pred=pred, y=y_batch)
+                pred = activ(self.logit(X_batch, self.weight))
+                loss = loss_func(pred, y_batch)
+                grad = np.dot(X_batch.T, (pred - y_batch)) / len(y_batch)
 
-                # grad = np.dot(X_batch.T, (pred - y_batch)) / len(y_batch)
-                self.gradient = loss.compute_gradients()
-                optimize()
-                ad.reset_graph()
+                self.weight -= grad * self.learning_rate_
+                if epoch % 1000 == 0:
+                    print("iter: " + str(epoch) + " loss: " + str(float(loss)))
 
-                if epoch % 10 == 0:
-                    print("iter: " + str(epoch) + " loss: " + str(float(loss.data)))
-
-                self.loss_history = np.append(loss_func(pred))
+                self.loss_history = np.append(self.loss_history, loss)
 
 
-from sklearn.datasets import make_blobs
-X, y = make_blobs(n_samples=10, centers=[[-2,0.5],[2,-0.5]], cluster_std=1, random_state=42)
+X, y = make_blobs(n_samples=500, centers=[[-2, 0.5], [2, -0.5]], cluster_std=1, random_state=42)
 
-colors = ("red", "green")
+colors = ("yellow", "blue")
 colored_y = np.zeros(y.size, dtype=str)
 
 for i, cl in enumerate([0, 1]):
     colored_y[y == cl] = str(colors[i])
 
-clf = Logistic()
+clf = Logistic(max_iter=1000)
 
 clf.fit(X, y)
+
+plt.figure(figsize=(15, 8))
+
+eps = 0.1
+xx, yy = np.meshgrid(np.linspace(np.min(X[:, 0]) - eps, np.max(X[:, 0]) + eps, 500),
+                     np.linspace(np.min(X[:, 1]) - eps, np.max(X[:, 1]) + eps, 500))
+
+Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+
+Z = Z.reshape(xx.shape)
+
+cmap_light = ListedColormap(['#ffff90', '#90ffff'])
+plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+plt.scatter(X[:, 0], X[:, 1], c=colored_y)
+plt.grid(alpha=0.2)
+plt.show()
