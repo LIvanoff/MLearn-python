@@ -50,6 +50,13 @@ class Logistic(object):
         pred = np.clip(pred, 1e-10, 1 - 1e-10)
         return np.mean(-(y * np.log(pred) + (1 - y) * np.log(1 - pred)))
 
+    def softmax(self, logits):
+        return np.exp(logits) / np.mean(np.exp(logits))
+
+    def cross_entropy(self, pred, y):
+        pred = np.clip(pred, 1e-10, 1 - 1e-10)
+        return y * np.log(pred)
+
     def predict(self, X, threshold=0.5):
         return self.predict_proba(X) >= threshold
 
@@ -70,8 +77,13 @@ class Logistic(object):
         if self.batch_size_ is None:
             self.batch_size_ = self.size_
 
-        activ = self.sigmoid
-        loss_func = self.BCE
+        num_class = len(np.unique(self.Y_))
+        if num_class > 2:
+            activ = self.softmax
+            loss_func = self.cross_entropy
+        else:
+            activ = self.sigmoid
+            loss_func = self.BCE
 
         for epoch in range(self.max_iter_):
             order = np.random.permutation(len(self.X_))
