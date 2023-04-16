@@ -51,7 +51,7 @@ class Logistic(object):
         return np.mean(-(y * np.log(pred) + (1 - y) * np.log(1 - pred)))
 
     def softmax(self, logits):
-        return np.exp(logits) / np.mean(np.exp(logits))
+        return np.exp(logits) / np.sum(np.exp(logits))
 
     def cross_entropy(self, pred, y):
         pred = np.clip(pred, 1e-10, 1 - 1e-10)
@@ -114,7 +114,7 @@ class Logistic(object):
                 self.loss_history = np.append(self.loss_history, loss)
 
 
-X, y = make_blobs(n_samples=500, centers=[[-2, 0.5], [2, -0.5]], cluster_std=1, random_state=42)
+X, y = make_blobs(n_samples=4, centers=[[1, 1], [-1, -1]], cluster_std=1, random_state=42)
 
 colors = ("yellow", "blue")
 colored_y = np.zeros(y.size, dtype=str)
@@ -122,7 +122,7 @@ colored_y = np.zeros(y.size, dtype=str)
 for i, cl in enumerate([0, 1]):
     colored_y[y == cl] = str(colors[i])
 
-clf = Logistic(max_iter=1000)
+clf = Logistic(max_iter=10000)
 
 clf.fit(X, y)
 
