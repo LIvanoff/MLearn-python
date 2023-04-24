@@ -55,7 +55,7 @@ class Logistic(object):
 
     def cross_entropy(self, pred, y):
         pred = np.clip(pred, 1e-10, 1 - 1e-10)
-        return -y * np.log(pred)
+        return -np.mean(y * np.log(pred))
 
     def predict(self, X, threshold=0.5):
         return self.predict_proba(X) >= threshold
