@@ -67,7 +67,7 @@ class Linear(object):
     def __init__(self,
                  max_iter: int = 100,
                  stop_criteria: bool = False,
-                 learning_rate: float = pow(10, -3),
+                 learning_rate: float = 1e-3,
                  optimizer_name: str = 'SGD',
                  loss_function: str = 'MSE',
                  beta1: float = 0.9,
