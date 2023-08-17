@@ -39,7 +39,7 @@ class Linear(object):
     max_iter_    : Максимальное количество итераций/количество эпох\n
     batch_size_  : Рамзер батча\n
     weight_      : Коэффициент угла наклона регрессии/перваый параметр\n
-    bias_        : Точка пересечения оси абцисс регрессией\n
+    bias_        : Точка пересечения оси абцисс регрессией/второй параметр\n
     pred         : Вектор предсказанных значений\n
     r1_score     : Коэффициент корреляции\n
     r2_score     : Коэффициент детерминации\n
@@ -99,7 +99,7 @@ class Linear(object):
         if self.loss_function_ == 'MSE':
             loss_function = self.MSE
         else:
-            loss_function = self.select_loss_function()
+            loss_function = self.MAE
 
         if self.batch_size_ is None:
             self.batch_size_ = self.size_
@@ -212,12 +212,6 @@ class Linear(object):
             self.color = 'g'
             return self.RMSprop
 
-    def select_loss_function(self):
-        if self.loss_function_ == 'MAE':
-            return self.MAE
-        elif self.loss_function_ == 'RMSE':
-            return self.RMSE
-
     def r2_score(self):
         self.r2_score = 1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(
             np.power((self.Y_ - np.mean(self.Y_)), 2))
@@ -227,3 +221,78 @@ class Linear(object):
         self.r1_score = np.sqrt(
             1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(np.power((self.Y_ - np.mean(self.Y_)), 2)))
         return self.r1_score
+
+
+class Ridge(Linear):
+    def __init__(self,
+                 l2: float,
+                 max_iter: int = 100,
+                 stop_criteria: bool = False,
+                 learning_rate: float = 1e-3,
+                 optimizer_name: str = 'SGD',
+                 beta1: float = 0.9,
+                 beta2: float = 0.999,
+                 batch_size: int = None,
+                 ):
+        super().__init__()
+        self.l2 = l2
+        self.weight_ = np.random.normal(loc=0.0, scale=0.01)
+        self.bias_ = np.random.normal(loc=0.0, scale=0.01)
+        self.max_iter_ = max_iter
+        self.stop_criteria_ = stop_criteria
+        self.learning_rate_ = learning_rate
+        self.optimizer_name_ = optimizer_name
+        self.beta1_ = beta1
+        self.beta2_ = beta2
+        self.batch_size_ = batch_size
+
+    def fit(self, X, Y):
+        self.X_ = X
+        self.Y_ = Y
+        self.size_ = len(self.X_)
+
+        if self.optimizer_name_ == 'SGD':
+            optimize = self.SGD
+            self.color = 'r'
+        else:
+            optimize = self.select_optimizer()
+
+        loss_function = self.MSE
+
+        if self.batch_size_ is None:
+            self.batch_size_ = self.size_
+
+        ad.set_mode('reverse')
+        plt.ion()
+        self.loss_history = np.array([])
+
+        for epoch in range(self.max_iter_):
+            order = np.random.permutation(len(self.X_))
+
+            for start_index in range(0, len(self.X_), self.batch_size_):
+                big_variable = av.Variable([self.weight_, self.bias_])
+                weight, bias = big_variable[0], big_variable[1]
+
+                batch_indexes = order[start_index:start_index + self.batch_size_]
+
+                X_batch = self.X_[batch_indexes]
+                y_batch = self.Y_[batch_indexes]
+
+                self.forward(weight, bias, X_batch)
+
+                loss_value = loss_function(y_batch)
+                self.gradient = loss_value.compute_gradients()
+                optimize()
+                self.loss_history = np.append(self.loss_history, loss_value.data)
+                self.plot()
+                ad.reset_graph()
+
+                if epoch % 10 == 0:
+                    print("iter: " + str(epoch) + " loss: " + str(float(loss_value.data)))
+
+        plt.ioff()
+        plt.show()
+        return self
+
+    def MSE(self, Y):
+        return np.mean(np.power((Y - self.pred), 2)) + self.l2 * np.power((self.weight_ + self.bias_) , 2)
