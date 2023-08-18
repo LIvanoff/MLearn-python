@@ -33,7 +33,7 @@ class Linear(object):
     Класс метода численной линейной регрессии
     size        : Размер выборки\n
     loss_history : История функции потерь\n
-    max_iter_    : Максимальное количество итераций/количество эпох\n
+    max_iter    : Максимальное количество итераций/количество эпох\n
     batch_size  : Рамзер батча\n
     weight      : Коэффициент угла наклона регрессии/перваый параметр\n
     bias        : Точка пересечения оси абцисс регрессией/второй параметр\n
@@ -118,7 +118,7 @@ class Linear(object):
                 self.gradient = loss_value.compute_gradients()
                 optimize()
                 self.loss_history = np.append(self.loss_history, loss_value.data)
-                self.plot(X, y, pred)
+                self.plot(X, y)
                 ad.reset_graph()
 
                 if epoch % 10 == 0:
@@ -166,10 +166,10 @@ class Linear(object):
         self.bias -= self.learning_rate * self.EMA1_b / (np.sqrt(self.EMA2_b) + epsilon)
         self.t += 1
 
-    def plot(self, X, y, pred):
+    def plot(self, X, y):
         plt.clf()
         plt.scatter(X, y, marker='o', alpha=0.8)
-        plt.plot(X, pred, color=self.color, label=str(self.optimizer_name))
+        plt.plot(X, self.predict(X), color=self.color, label=str(self.optimizer_name))
         plt.title('y = ' + str(self.weight) + ' x + ' + str(self.bias) + ' + ' + str(self.loss_history[-1]),
                   fontsize=10, color='0.5')
         plt.legend()
@@ -203,14 +203,14 @@ class Linear(object):
             self.color = 'g'
             return self.RMSprop
 
-    def r2_score(self):
-        self.r2_score = 1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(
-            np.power((self.Y_ - np.mean(self.Y_)), 2))
+    def r2_score(self, pred, y):
+        self.r2_score = 1 - np.mean(np.power((pred - y), 2)) / np.mean(
+            np.power((y - np.mean(y)), 2))
         return self.r2_score
 
-    def r1_score(self):
+    def r1_score(self, pred, y):
         self.r1_score = np.sqrt(
-            1 - np.mean(np.power((self.Y_ - self.pred), 2)) / np.mean(np.power((self.Y_ - np.mean(self.Y_)), 2)))
+            1 - np.mean(np.power((pred - y), 2)) / np.mean(np.power((y - np.mean(y)), 2)))
         return self.r1_score
 
 
@@ -227,22 +227,20 @@ class Ridge(Linear):
                  ):
         super().__init__()
         self.l2 = l2
-        self.weight_ = np.random.normal(loc=0.0, scale=0.01)
-        self.bias_ = np.random.normal(loc=0.0, scale=0.01)
-        self.max_iter_ = max_iter
-        self.stop_criteria_ = stop_criteria
-        self.learning_rate_ = learning_rate
-        self.optimizer_name_ = optimizer_name
-        self.beta1_ = beta1
-        self.beta2_ = beta2
-        self.batch_size_ = batch_size
+        self.weight = np.random.normal(loc=0.0, scale=0.01)
+        self.bias = np.random.normal(loc=0.0, scale=0.01)
+        self.max_iter = max_iter
+        self.stop_criteria = stop_criteria
+        self.learning_rate = learning_rate
+        self.optimizer_name = optimizer_name
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.batch_size = batch_size
 
-    def fit(self, X, Y):
-        self.X_ = X
-        self.Y_ = Y
-        self.size_ = len(self.X_)
+    def fit(self, X, y):
+        size = len(X)
 
-        if self.optimizer_name_ == 'SGD':
+        if self.optimizer_name == 'SGD':
             optimize = self.SGD
             self.color = 'r'
         else:
@@ -250,24 +248,24 @@ class Ridge(Linear):
 
         loss_function = self.MSE
 
-        if self.batch_size_ is None:
-            self.batch_size_ = self.size_
+        if self.batch_size is None:
+            self.batch_size = size
 
         ad.set_mode('reverse')
         plt.ion()
         self.loss_history = np.array([])
 
-        for epoch in range(self.max_iter_):
-            order = np.random.permutation(len(self.X_))
+        for epoch in range(self.max_iter):
+            order = np.random.permutation(len(X))
 
-            for start_index in range(0, len(self.X_), self.batch_size_):
-                big_variable = av.Variable([self.weight_, self.bias_])
+            for start_index in range(0, len(X), self.batch_size):
+                big_variable = av.Variable([self.weight, self.bias])
                 weight, bias = big_variable[0], big_variable[1]
 
-                batch_indexes = order[start_index:start_index + self.batch_size_]
+                batch_indexes = order[start_index:start_index + self.batch_size]
 
-                X_batch = self.X_[batch_indexes]
-                y_batch = self.Y_[batch_indexes]
+                X_batch = X[batch_indexes]
+                y_batch = y[batch_indexes]
 
                 self.forward(weight, bias, X_batch)
 
@@ -275,7 +273,7 @@ class Ridge(Linear):
                 self.gradient = loss_value.compute_gradients()
                 optimize()
                 self.loss_history = np.append(self.loss_history, loss_value.data)
-                self.plot()
+                self.plot(X, y)
                 ad.reset_graph()
 
                 if epoch % 10 == 0:
@@ -285,5 +283,5 @@ class Ridge(Linear):
         plt.show()
         return self
 
-    def MSE(self, Y):
-        return np.mean(np.power((Y - self.pred), 2)) + self.l2 * np.power((self.weight_ + self.bias_) , 2)
+    def MSE(self, pred, y):
+        return np.mean(np.power((pred, y), 2)) + self.l2 * np.power((self.weight + self.bias), 2)
