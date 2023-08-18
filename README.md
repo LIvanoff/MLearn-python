@@ -27,6 +27,15 @@
          </ul>
       </li>
     </ul>
+    <ul>
+      <li>
+        <a>Регуляризация</a>
+        <ul>
+          <li>Гребневая регрессия</li>
+          <li>Лассо Тибширани</li>
+         </ul>
+      </li>
+    </ul>
   </li>
   <li><a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/clustering/KMeans.py">K-Means</a></li>
   <li><a href="https://github.com/LIvanoff/MLearn-python/blob/master/MLearn/logistic_regression/Logistic.py">Логистическая регрессия</a></li>
@@ -40,5 +49,3 @@
     </ul>
   </li>
 </ol>
-
-## Линейная регрессия
