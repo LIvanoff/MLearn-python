@@ -3,6 +3,37 @@ import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
 from matplotlib.colors import ListedColormap
 
+'''
+    Пример использования:
+    X, y = make_blobs(n_samples=1000, centers=[[1, 1], [-1, -1]], cluster_std=1, random_state=42)
+    
+    colors = ("yellow", "blue")
+    colored_y = np.zeros(y.size, dtype=str)
+    
+    for i, cl in enumerate([0, 1]):
+        colored_y[y == cl] = str(colors[i])
+    
+    clf = Logistic(max_iter=10000)
+    
+    clf.fit(X, y)
+    
+    plt.figure(figsize=(15, 8))
+    
+    eps = 0.1
+    xx, yy = np.meshgrid(np.linspace(np.min(X[:, 0]) - eps, np.max(X[:, 0]) + eps, 500),
+                         np.linspace(np.min(X[:, 1]) - eps, np.max(X[:, 1]) + eps, 500))
+    
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    
+    Z = Z.reshape(xx.shape)
+    
+    cmap_light = ListedColormap(['#ffff90', '#90ffff'])
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+    
+    plt.scatter(X[:, 0], X[:, 1], c=colored_y)
+    plt.grid(alpha=0.2)
+    plt.show()
+'''
 
 class Logistic(object):
     '''
@@ -12,8 +43,8 @@ class Logistic(object):
     Y_           : Вектор целевых значение\n
     size_        : Размер выборки\n
     loss_history : История функции потерь\n
-    max_iter_    : Максимальное количество итераций/количество эпох\n
-    batch_size_  : Рамзер батча\n
+    max_iter    : Максимальное количество итераций/количество эпох\n
+    batch_size  : Рамзер батча\n
     weight       : Веса\n
     pred         : Вектор предсказанных значений\n
     '''
@@ -112,33 +143,3 @@ class Logistic(object):
                     print("iter: " + str(epoch) + " loss: " + str(float(loss)))
 
                 self.loss_history = np.append(self.loss_history, loss)
-
-
-X, y = make_blobs(n_samples=4, centers=[[1, 1], [-1, -1]], cluster_std=1, random_state=42)
-
-colors = ("yellow", "blue")
-colored_y = np.zeros(y.size, dtype=str)
-
-for i, cl in enumerate([0, 1]):
-    colored_y[y == cl] = str(colors[i])
-
-clf = Logistic(max_iter=10000)
-
-clf.fit(X, y)
-
-plt.figure(figsize=(15, 8))
-
-eps = 0.1
-xx, yy = np.meshgrid(np.linspace(np.min(X[:, 0]) - eps, np.max(X[:, 0]) + eps, 500),
-                     np.linspace(np.min(X[:, 1]) - eps, np.max(X[:, 1]) + eps, 500))
-
-Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
-
-Z = Z.reshape(xx.shape)
-
-cmap_light = ListedColormap(['#ffff90', '#90ffff'])
-plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
-
-plt.scatter(X[:, 0], X[:, 1], c=colored_y)
-plt.grid(alpha=0.2)
-plt.show()
