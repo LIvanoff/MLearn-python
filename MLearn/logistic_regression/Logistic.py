@@ -54,8 +54,8 @@ class Logistic(object):
     loss_history: np.ndarray
     pred: np.ndarray
     weight: float
-    batch_size_: int
-    max_iter_: int
+    batch_size: int
+    max_iter: int
 
     def __init__(self, max_iter=300,
                  learning_rate: float = pow(10, -3),
@@ -64,12 +64,10 @@ class Logistic(object):
                  beta2: float = 0.999,
                  batch_size: int = None,
                  ):
-        self.max_iter_ = max_iter
-        self.learning_rate_ = learning_rate
-        self.optimizer_name_ = optimizer_name
-        self.beta1_ = beta1
-        self.beta2_ = beta2
-        self.batch_size_ = batch_size
+        self.max_iter = max_iter
+        self.learning_rate = learning_rate
+        self.optimizer_name = optimizer_name
+        self.batch_size = batch_size
 
     def logit(self, X, weight):
         return np.dot(X, weight)
@@ -111,8 +109,8 @@ class Logistic(object):
         self.size_ = len(self.X_)
         self.weight = np.random.normal(loc=0.0, scale=0.01, size=k + 1)
 
-        if self.batch_size_ is None:
-            self.batch_size_ = self.size_
+        if self.batch_size is None:
+            self.batch_size = self.size_
 
         num_class = len(np.unique(self.Y_))
         if num_class > 2:
@@ -124,12 +122,12 @@ class Logistic(object):
             loss_func = self.BCE
             gradient = self.gradient_sigmoid
 
-        for epoch in range(self.max_iter_):
+        for epoch in range(self.max_iter):
             order = np.random.permutation(len(self.X_))
 
-            for start_index in range(0, len(self.X_), self.batch_size_):
+            for start_index in range(0, len(self.X_), self.batch_size):
 
-                batch_indexes = order[start_index:start_index + self.batch_size_]
+                batch_indexes = order[start_index:start_index + self.batch_size]
 
                 X_batch = self.X_[batch_indexes]
                 y_batch = self.Y_[batch_indexes]
@@ -138,7 +136,7 @@ class Logistic(object):
                 loss = loss_func(pred, y_batch)
                 grad = gradient(X_batch, pred, y_batch)
 
-                self.weight -= grad * self.learning_rate_
+                self.weight -= grad * self.learning_rate
                 if epoch % 1000 == 0:
                     print("iter: " + str(epoch) + " loss: " + str(float(loss)))
 
