@@ -91,8 +91,8 @@ class Logistic(object):
 
     def predict_proba(self, X):
         n, k = X.shape
-        X_ = np.concatenate((np.ones((n, 1)), X), axis=1)
-        return self.sigmoid(self.logit(X_, self.weight))
+        X = np.concatenate((np.ones((n, 1)), X), axis=1)
+        return self.sigmoid(self.logit(X, self.weight))
 
     def gradient_softmax(self, X, pred, y):
         return np.mean(np.dot(X.T, (y - pred))) / len(y)
@@ -100,19 +100,18 @@ class Logistic(object):
     def gradient_sigmoid(self, X, pred, y):
         return np.dot(X.T, (pred - y)) / len(y)
 
-    def fit(self, X, Y):
-        self.Y_ = Y
+    def fit(self, X, y):
         self.loss_history = np.array([])
 
         n, k = X.shape
-        self.X_ = np.concatenate((np.ones((n, 1)), X), axis=1)
-        self.size_ = len(self.X_)
+        X = np.concatenate((np.ones((n, 1)), X), axis=1)
+        size = len(X)
         self.weight = np.random.normal(loc=0.0, scale=0.01, size=k + 1)
 
         if self.batch_size is None:
-            self.batch_size = self.size_
+            self.batch_size = size
 
-        num_class = len(np.unique(self.Y_))
+        num_class = len(np.unique(y))
         if num_class > 2:
             activ = self.softmax
             loss_func = self.cross_entropy
@@ -123,9 +122,9 @@ class Logistic(object):
             gradient = self.gradient_sigmoid
 
         for epoch in range(self.max_iter):
-            order = np.random.permutation(len(self.X_))
+            order = np.random.permutation(len(X))
 
-            for start_index in range(0, len(self.X_), self.batch_size):
+            for start_index in range(0, len(X), self.batch_size):
 
                 batch_indexes = order[start_index:start_index + self.batch_size]
 
