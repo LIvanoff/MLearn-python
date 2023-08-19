@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import autograd as ad
-import autograd.variable as av
 import time
+from sklearn.model_selection import train_test_split
+import torch
 
 '''
     Пример использования:
@@ -28,8 +28,85 @@ import time
 '''
 
 
-class Linear(object):
+class Regression(torch.nn.Module):
     '''
+        Класс метода численной линейной регрессии\n
+        max_iter    : Количество эпох\n
+        batch_size  : Рамзер батча\n
+    '''
+    def __init__(self, max_iter: int = 100,
+                 lr: float = 1e-3,
+                 optimizer_name: str = 'SGD',
+                 loss_function: str = 'MSE',
+                 beta1: float = 0.9,
+                 beta2: float = 0.999,
+                 batch_size: int = None,
+                 device: str = 'cpu',
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.weight = None
+        self.bias = None
+        self.max_iter = max_iter
+        self.lr = lr
+        self.optimizer_name = optimizer_name
+        self.loss_function = loss_function
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.batch_size = batch_size
+
+        if device == 'gpu' and torch.cuda.is_available():
+            self.device = 'cuda:0'
+        else:
+            self.device = 'cpu'
+
+    def fit(self, X, y, eval_set):
+        _, n_input = X.shape
+        if self.weight is None:
+            with torch.no_grad():
+                self.weight = torch.empty(n_input, requires_grad=True).normal_()
+                self.bias = torch.empty(1, requires_grad=True).normal_()
+
+    def forward(self, X):
+        return X @ self.weight.T + self.bias
+
+    def MSELoss(self, pred, y):
+        return torch.mean(torch.pow((pred - y), 2))
+
+    def MAELoss(self, pred, y):
+        return torch.mean(torch.abs(pred - y))
+
+    def RMSE(self, pred, y):
+        return torch.sqrt(torch.mean(torch.pow((pred - y), 2)))
+
+
+X = np.array(
+    [[1.], [1.2], [1.6], [1.78], [2], [2.3], [2.4], [3], [3.3], [4.], [4.1], [4.12], [4.34], [5], [5.3], [5.6], [6]])
+y = np.array(
+    [[0.8], [1], [0.9], [1.0], [1.2], [1.1], [1.6], [1.7], [2.0], [2.1], [2.15], [2.22], [2.45], [2.6], [2.12], [2.45],
+     [2.3]])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print(X_train.shape)
+reg = Regression().fit(X_train, y_train, eval_set=(X_test, y_test))
+
+
+''' 
+########################################################################################################################
+########################################################################################################################
+                ##### #####  ##   ###    ##     ###      ###   ####  ###    ####   ##  ##    ####      
+                #       #   #  #  #  #  #  #   #  #      #  #  #     #  #   #      ##  ##   #   #  
+                #       #   ####  ###   ####    ###      ###   ####  ###    #      ## # #    ####
+                #       #   #  #  #     #  #   #  #      #  #  #     #      #      # #  #   #   #
+                #####   #   #  #  #     #  #  #   #      # #   ####  #      ####   #    #  #    #
+########################################################################################################################
+########################################################################################################################
+
+import autograd as ad
+import autograd.variable as av
+
+
+class Linear(object):
     Класс метода численной линейной регрессии
     size        : Размер выборки\n
     loss_history : История функции потерь\n
@@ -40,7 +117,6 @@ class Linear(object):
     pred         : Вектор предсказанных значений\n
     r1_score     : Коэффициент корреляции\n
     r2_score     : Коэффициент детерминации\n
-    '''
     size: int
     loss_history: np.ndarray
     beta1: float
@@ -285,3 +361,4 @@ class Ridge(Linear):
 
     def MSE(self, pred, y):
         return np.mean(np.power((pred, y), 2)) + self.l2 * np.power((self.weight + self.bias), 2)
+'''
