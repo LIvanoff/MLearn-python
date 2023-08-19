@@ -1,8 +1,10 @@
+import torch
 import numpy as np
+from sklearn.model_selection import train_test_split
+
+import tqdm
 import matplotlib.pyplot as plt
 import time
-from sklearn.model_selection import train_test_split
-import torch
 
 '''
     Пример использования:
@@ -66,6 +68,50 @@ class Regression(torch.nn.Module):
                 self.weight = torch.empty(n_input, requires_grad=True).normal_()
                 self.bias = torch.empty(1, requires_grad=True).normal_()
 
+        size = len(X)
+
+        if self.optimizer_name == 'SGD':
+            optimize = self.SGD
+        else:
+            optimize = self.select_optimizer()
+
+        if self.loss_function == 'MSE':
+            criterion = self.MSE
+        else:
+            criterion = self.MAE
+
+        if self.batch_size is None:
+            self.batch_size = size
+
+        loss_history = []
+
+        for epoch in range(self.max_iter):
+            order = np.random.permutation(len(X))
+
+            for start_index in range(0, len(X), self.batch_size):
+                # big_variable = av.Variable([self.weight, self.bias])
+                # weight, bias = big_variable[0], big_variable[1]
+
+                batch_indexes = order[start_index:start_index + self.batch_size]
+
+                X_batch = X[batch_indexes].to(self.device)
+                y_batch = y[batch_indexes].to(self.device)
+
+                pred = self.forward(X_batch)
+
+                loss = criterion(pred, y_batch)
+                # loss.backward()
+                # optimize.step()
+                loss_history.append(loss.items())
+                # self.plot(X, y)
+
+                if epoch % 10 == 0:
+                    print("iter: " + str(epoch) + " loss: " + str(float(loss.items())))
+
+        plt.ioff()
+        plt.show()
+        return self
+
     def forward(self, X):
         return X @ self.weight.T + self.bias
 
@@ -75,8 +121,16 @@ class Regression(torch.nn.Module):
     def MAELoss(self, pred, y):
         return torch.mean(torch.abs(pred - y))
 
-    def RMSE(self, pred, y):
+    def RMSELoss(self, pred, y):
         return torch.sqrt(torch.mean(torch.pow((pred - y), 2)))
+
+    def r2_score(pred, y):
+        return 1 - torch.mean(torch.pow((pred - y), 2)) / torch.mean(
+            torch.pow((y - torch.mean(y)), 2))
+
+    def r1_score(pred, y):
+        return torch.sqrt(
+            1 - torch.mean(torch.pow((pred - y), 2)) / torch.mean(torch.pow((y - torch.mean(y)), 2)))
 
 
 X = np.array(
